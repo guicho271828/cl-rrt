@@ -1,0 +1,7 @@
+@tindex rrt-tree-node
+@anchor{Class rrt-tree-node}
+@deftp {Class} {rrt-tree-node}
+Class precedence list: @code{@lw{rrt-tree-node}, @lw{standard-object}, @lw{t}}
+
+Node class of Random Tree.
+@end deftp

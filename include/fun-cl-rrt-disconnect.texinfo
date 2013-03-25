@@ -1,0 +1,6 @@
+@findex disconnect
+@anchor{Function disconnect}
+@deffn {Function} {disconnect} parent child
+disconnect a parent and its child.
+signals @code{child-not-found} @code{<} @code{simple-condition}.
+@end deffn

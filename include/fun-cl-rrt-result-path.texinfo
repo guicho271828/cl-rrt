@@ -1,0 +1,7 @@
+@findex result-path
+@anchor{Function result-path}
+@deffn {Function} {result-path} tree
+Returns a list of C-space points of the computed paths
+from the root to the end.  Returns nil if the path was not found. The
+list contains the root of the tree.
+@end deffn

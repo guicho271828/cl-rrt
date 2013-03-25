@@ -1,0 +1,5 @@
+@findex orphanize
+@anchor{Function orphanize}
+@deffn {Function} {orphanize} child
+@code{helper} @code{function:} ensure a node doesn't have a parent
+@end deffn

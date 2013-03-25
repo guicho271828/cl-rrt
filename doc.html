@@ -1,0 +1,816 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html401/loose.dtd">
+<html>
+<!-- Created on 2013年3月月26日 by texi2html 1.82
+texi2html was written by: 
+            Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Many creative people.
+Send bugs and suggestions to <texi2html-bug@nongnu.org>
+-->
+<head>
+<title>CL-RRT</title>
+
+<meta name="description" content="CL-RRT">
+<meta name="keywords" content="CL-RRT">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="texi2html 1.82">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+pre.display {font-family: serif}
+pre.format {font-family: serif}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: serif; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: serif; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.roman {font-family:serif; font-weight:normal;}
+span.sansserif {font-family:sans-serif; font-weight:normal;}
+ul.toc {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="ja" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+
+<a name="Top"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="CL_002dRRT-Manual"></a>
+<h1 class="settitle">CL-RRT Manual</h1>
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top"><a href="#CL_002dRRT-_002d-Common-Lisp-implementation-of-RRT-Rapidily-exploring-Random-Tree">1. CL-RRT - Common Lisp implementation of RRT (Rapidily exploring Random Tree)</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">  
+</td></tr>
+<tr><td align="left" valign="top"><a href="#API">2. API</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                         
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Copyright">3. Copyright</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                   
+</td></tr>
+<tr><td align="left" valign="top"><a href="#License">4. License</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                     
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Dependencies">1.1 Dependencies</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Installation">1.2 Installation</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Author">1.3 Author</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+</td></tr>
+<tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
+API
+
+</pre></th></tr><tr><td align="left" valign="top"><a href="#Core-functions-and-generic-functions">2.1 Core functions and generic functions</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">  
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Tree-classes">2.2 Tree classes</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Helper-functions">2.3 Helper functions</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">            
+</td></tr>
+<tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
+Helper functions
+
+</pre></th></tr><tr><td align="left" valign="top"><a href="#Path-and-tree-walking">2.3.1 Path and tree walking</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">       
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Node-manipulation">2.3.2 Node manipulation</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">           
+</td></tr>
+<tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
+</pre></th></tr></table>
+
+
+
+
+<hr size="1">
+<a name="CL_002dRRT-_002d-Common-Lisp-implementation-of-RRT-Rapidily-exploring-Random-Tree"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Top" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Dependencies" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section">上</a>]</td>
+<td valign="middle" align="left">[<a href="#API" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="CL_002dRRT-_002d-Common-Lisp-implementation-of-RRT-_0028Rapidily-exploring-Random-Tree_0029"></a>
+<h1 class="chapter">1. CL-RRT - Common Lisp implementation of RRT (Rapidily exploring Random Tree)</h1>
+
+<p>RRT is a fast probabilistic multidimentional path-plannning algorithm
+introduced by S.M.LaValle <a name="DOCF1" href="#FOOT1">(1)</a>. It now has a widespread use in robotics
+and now able to handle the real time systems such as automatic car
+driving AI. Also, it has various extentions and optimization methods
+such as:
+</p>
+<ul>
+<li> 
+MP-RRT
+
+</li><li> 
+RR-belief-tree
+
+</li><li> 
+RRG
+
+</li><li> 
+RRT*
+
+</li><li> 
+St-RRT
+
+</li></ul>
+
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top"><a href="#Dependencies">1.1 Dependencies</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Installation">1.2 Installation</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Author">1.3 Author</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                      
+</td></tr>
+</table>
+
+<hr size="6">
+<a name="Dependencies"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#CL_002dRRT-_002d-Common-Lisp-implementation-of-RRT-Rapidily-exploring-Random-Tree" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Installation" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#CL_002dRRT-_002d-Common-Lisp-implementation-of-RRT-Rapidily-exploring-Random-Tree" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#CL_002dRRT-_002d-Common-Lisp-implementation-of-RRT-Rapidily-exploring-Random-Tree" title="Up section">上</a>]</td>
+<td valign="middle" align="left">[<a href="#API" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="Dependencies-1"></a>
+<h2 class="section">1.1 Dependencies</h2>
+
+<p>This library is at least tested on implementation listed below:
+</p>
+<ul>
+<li> 
+SBCL 1.1.2 on X86-64 Linux  3.2.0-39-generic (author&rsquo;s environment)
+
+</li></ul>
+
+<p>Also, it depends on the following libraries:
+</p>
+<dl compact="compact">
+<dt> &lsquo;<samp>ITERATE</samp>&rsquo; </dt>
+<dd><p>Jonathan Amsterdam&rsquo;s iterator/gatherer/accumulator facility
+</p>
+
+</dd>
+<dt> &lsquo;<samp>ALEXANDRIA</samp>&rsquo; </dt>
+<dd><p>Alexandria is a collection of portable public domain utilities.
+</p>
+
+</dd>
+<dt> &lsquo;<samp>CL-ANNOT by Tomohiro Matsuyama</samp>&rsquo;</dt>
+<dd><p>Python-like Annotation Syntax for Common Lisp
+</p>
+
+</dd>
+<dt> &lsquo;<samp>ANAPHORA</samp>&rsquo; </dt>
+</dl>
+
+<hr size="6">
+<a name="Installation"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Dependencies" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Author" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#CL_002dRRT-_002d-Common-Lisp-implementation-of-RRT-Rapidily-exploring-Random-Tree" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#CL_002dRRT-_002d-Common-Lisp-implementation-of-RRT-Rapidily-exploring-Random-Tree" title="Up section">上</a>]</td>
+<td valign="middle" align="left">[<a href="#API" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="Installation-1"></a>
+<h2 class="section">1.2 Installation</h2>
+
+<ul>
+<li> 
+First grab the code with <tt>git clone git@github.com:guicho271828/cl-rrt.git</tt>
+
+</li><li> 
+Put it in local-project folder
+
+</li><li> 
+open slime REPL
+
+</li><li> 
+<tt>(ql:quickload :cl-rrt)</tt> and the library will be installed along with all
+the dependencies
+
+</li></ul>
+
+<hr size="6">
+<a name="Author"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Installation" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#API" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#CL_002dRRT-_002d-Common-Lisp-implementation-of-RRT-Rapidily-exploring-Random-Tree" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#CL_002dRRT-_002d-Common-Lisp-implementation-of-RRT-Rapidily-exploring-Random-Tree" title="Up section">上</a>]</td>
+<td valign="middle" align="left">[<a href="#API" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="Author-1"></a>
+<h2 class="section">1.3 Author</h2>
+
+<ul>
+<li> 
+Masataro Asai (guicho2.71828@gmail.com)
+
+</li><li> 
+Univ. Tokyo -&gt; Grad. school of Tokyo University
+
+</li></ul>
+
+<hr size="6">
+<a name="API"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Author" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Core-functions-and-generic-functions" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#CL_002dRRT-_002d-Common-Lisp-implementation-of-RRT-Rapidily-exploring-Random-Tree" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section">上</a>]</td>
+<td valign="middle" align="left">[<a href="#Copyright" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="API-1"></a>
+<h1 class="chapter">2. API</h1>
+
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top"><a href="#Core-functions-and-generic-functions">2.1 Core functions and generic functions</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">  
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Tree-classes">2.2 Tree classes</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">                
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Helper-functions">2.3 Helper functions</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">            
+</td></tr>
+</table>
+
+<hr size="6">
+<a name="Core-functions-and-generic-functions"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#API" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Tree-classes" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#API" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#API" title="Up section">上</a>]</td>
+<td valign="middle" align="left">[<a href="#Copyright" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="Core-functions-and-generic-functions-1"></a>
+<h2 class="section">2.1 Core functions and generic functions</h2>
+<a name="index-rrt_002dtree_002dmixin"></a>
+<p><a name="Class-rrt_002dtree_002dmixin"></a>
+</p><dl>
+<dt><a name="index-rrt_002dtree_002dmixin-1"></a><u>Class:</u> <b>rrt-tree-mixin</b></dt>
+<dd><p>Class precedence list: <code>@lw{rrt-tree-mixin}, @lw{standard-object}, @lw{t}</code>
+</p>
+<p>Slots:
+</p><ul>
+<li> <code>root</code> &mdash; initarg: <code>:root</code>; reader: <code>cl-rrt:root</code>; writer: <code>(setf cl-rrt:root)</code>
+
+<p>Root node.
+</p></li><li> <code>finish</code> &mdash; initarg: <code>:finish-node</code>; reader: <code>cl-rrt:finish-node</code>; writer: <code>(setf cl-rrt:finish-node)</code>
+
+<p>Stores the node which was found to be
+		   nearest to the goal, etc.
+</p></li></ul>
+
+<p>The abstract class of rrt-tree.
+</p></dd></dl>
+<a name="index-rrt_002dtree_002dnode"></a>
+<p><a name="Class-rrt_002dtree_002dnode"></a>
+</p><dl>
+<dt><a name="index-rrt_002dtree_002dnode-1"></a><u>Class:</u> <b>rrt-tree-node</b></dt>
+<dd><p>Class precedence list: <code>@lw{rrt-tree-node}, @lw{standard-object}, @lw{t}</code>
+</p>
+<p>Node class of Random Tree.
+</p></dd></dl>
+<a name="index-rrt_002dsearch"></a>
+<p><a name="Function-rrt_002dsearch"></a>
+</p><dl>
+<dt><a name="index-rrt_002dsearch-1"></a><u>Function:</u> <b>rrt-search</b><i> start-v random-generator new-v-generator edge-prohibited-p finish-p @&amp;key tree tree-class max-nodes max-iteration run-on-node</i></dt>
+<dd><p>RRT-search function.
+let V as a type variable.
+</p>
+<ul>
+<li> V <code>:</code> a vector class which represents the point in C-space.
+           (configuration-space-distance V V) should return a number.
+</li><li> (node V) <code>:</code> an rrt-tree-node instance whose &lsquo;content&rsquo; slot is V.
+           non-holonomic parameters like velocity and acceralation
+           should be stored within (node V), not in V.
+</li></ul>
+
+<p>&lsquo;rrt-search&rsquo; returns the result tree as its primary value.  The
+secondaly value is the total number of the nodes, and third value is
+the number of iteration done in the search.
+</p>
+<p>the arguments should be of types as listed in the following <code>:</code>
+</p>
+<ul>
+<li> start-v <code>:</code> V
+</li><li> random-generator: (no args) → V
+</li><li> new-v-generator: V, V → V ; nearest, random → actual
+</li><li> edge-prohibited-p: V, V → bool ; nearest, new → result
+</li><li> finish-p: V → bool ; new → result
+</li><li> run-on-node: V, V → t ; nearest, new →
+
+</li><li> container-generator: (no args) → (container (node V))
+</li><li> container-insert: V, (container (node V)) → (container (node V))
+</li><li> container-nearest-search: V, (container (node V)) → V
+</li></ul>
+
+</dd></dl>
+<a name="index-no_002denough_002dpath"></a>
+<p><a name="Condition-no_002denough_002dpath"></a>
+</p><dl>
+<dt><a name="index-no_002denough_002dpath-1"></a><u>Condition:</u> <b>no-enough-path</b></dt>
+<dd><p>Class precedence list: <code>@lw{no-enough-path}, @lw{condition}, @lw{t}</code>
+</p>
+<p>as the name says.
+</p></dd></dl>
+<a name="index-nearest_002dnode"></a>
+<p><a name="Generic_002dFunction-nearest_002dnode"></a>
+</p><dl>
+<dt><a name="index-nearest_002dnode-1"></a><u>Generic Function:</u> <b>nearest-node</b><i> target tree</i></dt>
+<dd><p>This generic function should implement a method
+which finds the nearest node in a &lsquo;tree&rsquo; to the &lsquo;target&rsquo;.
+</p></dd></dl>
+
+<hr size="6">
+<a name="Tree-classes"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Core-functions-and-generic-functions" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Helper-functions" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#API" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#API" title="Up section">上</a>]</td>
+<td valign="middle" align="left">[<a href="#Copyright" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="Tree-classes-1"></a>
+<h2 class="section">2.2 Tree classes</h2>
+<a name="index-rrt_002dtree_002dlist"></a>
+<p><a name="Class-rrt_002dtree_002dlist"></a>
+</p><dl>
+<dt><a name="index-rrt_002dtree_002dlist-1"></a><u>Class:</u> <b>rrt-tree-list</b></dt>
+<dd><p>Class precedence list: <code>@lw{rrt-tree-list}, @lw{rrt-tree-mixin}, @lw{standard-object}, @lw{t}</code>
+</p>
+<p>an rrt-tree implementation which uses
+ a simple linear search method for nearest-search.
+</p></dd></dl>
+<a name="index-rrt_002dtree_002dtree"></a>
+<p><a name="Class-rrt_002dtree_002dtree"></a>
+</p><dl>
+<dt><a name="index-rrt_002dtree_002dtree-1"></a><u>Class:</u> <b>rrt-tree-tree</b></dt>
+<dd><p>Class precedence list: <code>@lw{rrt-tree-tree}, @lw{rrt-tree-mixin}, @lw{standard-object}, @lw{t}</code>
+</p>
+<p>an rrt-tree implementation which 
+seaches from the root in nearest-search.
+</p></dd></dl>
+
+<hr size="6">
+<a name="Helper-functions"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Tree-classes" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Path-and-tree-walking" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#API" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#API" title="Up section">上</a>]</td>
+<td valign="middle" align="left">[<a href="#Copyright" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="Helper-functions-1"></a>
+<h2 class="section">2.3 Helper functions</h2>
+
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top"><a href="#Path-and-tree-walking">2.3.1 Path and tree walking</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">       
+</td></tr>
+<tr><td align="left" valign="top"><a href="#Node-manipulation">2.3.2 Node manipulation</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">           
+</td></tr>
+</table>
+
+<hr size="6">
+<a name="Path-and-tree-walking"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Helper-functions" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Node-manipulation" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#API" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Helper-functions" title="Up section">上</a>]</td>
+<td valign="middle" align="left">[<a href="#Copyright" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="Path-and-tree-walking-1"></a>
+<h3 class="subsection">2.3.1 Path and tree walking</h3>
+<a name="index-map_002drrt_002dtree_002dcontent_002drecursively"></a>
+<p><a name="Function-map_002drrt_002dtree_002dcontent_002drecursively"></a>
+</p><dl>
+<dt><a name="index-map_002drrt_002dtree_002dcontent_002drecursively-1"></a><u>Function:</u> <b>map-rrt-tree-content-recursively</b><i> node fn</i></dt>
+<dd><p>Map over the contents of RRT-TREE-NODEs of the tree and
+ return each result in a nested tree 
+with the same structure as the original random-tree.
+</p></dd></dl>
+<a name="index-map_002drrt_002dtree_002dnode_002drecursively"></a>
+<p><a name="Function-map_002drrt_002dtree_002dnode_002drecursively"></a>
+</p><dl>
+<dt><a name="index-map_002drrt_002dtree_002dnode_002drecursively-1"></a><u>Function:</u> <b>map-rrt-tree-node-recursively</b><i> node fn</i></dt>
+<dd><p>Map over the RRT-TREE-NODEs of the tree and
+ return the results in a nested cons tree 
+with the same structure as that of the original random-tree.
+</p></dd></dl>
+<a name="index-mapc_002drrt_002dtree_002dcontent_002drecursively"></a>
+<p><a name="Function-mapc_002drrt_002dtree_002dcontent_002drecursively"></a>
+</p><dl>
+<dt><a name="index-mapc_002drrt_002dtree_002dcontent_002drecursively-1"></a><u>Function:</u> <b>mapc-rrt-tree-content-recursively</b><i> node fn</i></dt>
+<dd><p>Mapc over the contents of RRT-TREE-NODEs ofthe tree and returns nil.
+ Only for the side effect.
+</p></dd></dl>
+<a name="index-mapc_002drrt_002dtree_002dnode_002drecursively"></a>
+<p><a name="Function-mapc_002drrt_002dtree_002dnode_002drecursively"></a>
+</p><dl>
+<dt><a name="index-mapc_002drrt_002dtree_002dnode_002drecursively-1"></a><u>Function:</u> <b>mapc-rrt-tree-node-recursively</b><i> node fn</i></dt>
+<dd><p>Mapc over the RRT-TREE-NODEs of the tree and returns nil.
+ Only for the side effect.
+</p></dd></dl>
+<a name="index-nnext_002dbranch"></a>
+<p><a name="Function-nnext_002dbranch"></a>
+</p><dl>
+<dt><a name="index-nnext_002dbranch-1"></a><u>Function:</u> <b>nnext-branch</b><i> tree</i></dt>
+<dd><p>Destructively modifies and return an <code>rrt-tree</code>.  If the
+&lsquo;tree&rsquo; has a finish node, it finds a path from the root to
+the end and then replace the root with the next node in that path.
+Otherwise it choose one child of the root at random and replace the
+root with it. In both cases the new root is orphanized.
+</p></dd></dl>
+<a name="index-result_002dpath"></a>
+<p><a name="Function-result_002dpath"></a>
+</p><dl>
+<dt><a name="index-result_002dpath-1"></a><u>Function:</u> <b>result-path</b><i> tree</i></dt>
+<dd><p>Returns a list of C-space points of the computed paths
+from the root to the end.  Returns nil if the path was not found. The
+list contains the root of the tree.
+</p></dd></dl>
+<a name="index-result_002dpath_002dnodes"></a>
+<p><a name="Function-result_002dpath_002dnodes"></a>
+</p><dl>
+<dt><a name="index-result_002dpath_002dnodes-1"></a><u>Function:</u> <b>result-path-nodes</b><i> tree</i></dt>
+<dd><p>Returns the nodes of the computed path in a list, from
+the root to the end. Returns nil if the path was not found. The list
+contains the root of the tree.
+</p></dd></dl>
+
+<hr size="6">
+<a name="Node-manipulation"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Path-and-tree-walking" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Copyright" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#API" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Helper-functions" title="Up section">上</a>]</td>
+<td valign="middle" align="left">[<a href="#Copyright" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="Node-manipulation-1"></a>
+<h3 class="subsection">2.3.2 Node manipulation</h3>
+<a name="index-rrt_002dnode"></a>
+<p><a name="Function-rrt_002dnode"></a>
+</p><dl>
+<dt><a name="index-rrt_002dnode-1"></a><u>Function:</u> <b>rrt-node</b><i> content</i></dt>
+<dd>
+<p>Identical to =(make-instance &rsquo;rrt-tree-node :content content)=
+</p></dd></dl>
+<a name="index-connect"></a>
+<p><a name="Function-connect"></a>
+</p><dl>
+<dt><a name="index-connect-1"></a><u>Function:</u> <b>connect</b><i> parent child</i></dt>
+<dd><p>connect two nodes as a parent and a child.
+</p></dd></dl>
+<a name="index-disconnect"></a>
+<p><a name="Function-disconnect"></a>
+</p><dl>
+<dt><a name="index-disconnect-1"></a><u>Function:</u> <b>disconnect</b><i> parent child</i></dt>
+<dd><p>disconnect a parent and its child.
+signals <code>child-not-found</code> <code>&lt;</code> <code>simple-condition</code>.
+</p></dd></dl>
+<a name="index-child_002dnot_002dfound"></a>
+<p><a name="Condition-child_002dnot_002dfound"></a>
+</p><dl>
+<dt><a name="index-child_002dnot_002dfound-1"></a><u>Condition:</u> <b>child-not-found</b></dt>
+<dd><p>Class precedence list: <code>@lw{child-not-found}, @lw{condition}, @lw{t}</code>
+</p>
+</dd></dl>
+<a name="index-neglect"></a>
+<p><a name="Function-neglect"></a>
+</p><dl>
+<dt><a name="index-neglect-1"></a><u>Function:</u> <b>neglect</b><i> parent</i></dt>
+<dd><p><code>helper</code> <code>function:</code> disconnect all children from the
+specified parent
+</p></dd></dl>
+<a name="index-orphanize"></a>
+<p><a name="Function-orphanize"></a>
+</p><dl>
+<dt><a name="index-orphanize-1"></a><u>Function:</u> <b>orphanize</b><i> child</i></dt>
+<dd><p><code>helper</code> <code>function:</code> ensure a node doesn&rsquo;t have a parent
+</p></dd></dl>
+<a name="index-adopt_002dchildren"></a>
+<p><a name="Function-adopt_002dchildren"></a>
+</p><dl>
+<dt><a name="index-adopt_002dchildren-1"></a><u>Function:</u> <b>adopt-children</b><i> new-parent old-parent</i></dt>
+<dd><p><code>helper</code> <code>fuinction:</code> removes the children of old-parent and
+the new-parent takes all of them.
+</p></dd></dl>
+
+<hr size="6">
+<a name="Copyright"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Node-manipulation" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#License" title="Next section in reading order"> &gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#API" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section">上</a>]</td>
+<td valign="middle" align="left">[<a href="#License" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="Copyright-1"></a>
+<h1 class="chapter">3. Copyright</h1>
+
+<p>Copyright (c) 2013 Masataro Asai (guicho2.71828@gmail.com)
+</p>
+<hr size="6">
+<a name="License"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Copyright" title="Previous section in reading order"> &lt; </a>]</td>
+<td valign="middle" align="left">[ &gt; ]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Copyright" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="#Top" title="Up section">上</a>]</td>
+<td valign="middle" align="left">[ &gt;&gt; ]</td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left"> &nbsp; </td>
+<td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<a name="License-1"></a>
+<h1 class="chapter">4. License</h1>
+
+<p>Licensed under the LLGPL License.
+</p>
+
+<hr size="6">
+<a name="SEC_Foot"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h1>脚注</h1>
+<h3><a name="FOOT1" href="#DOCF1">(1)</a></h3>
+<p>S.M. LaValle and J.J. Kuffner. Randomized kinodynamic
+planning. <em>The International Journal of Robotics Research</em>, Vol. 20,
+No. 5, pp. 378–400, 2001.
+</p><hr size="1">
+<a name="SEC_Contents"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h1>目次</h1>
+<div class="contents">
+
+<ul class="toc">
+  <li><a name="toc-CL_002dRRT-_002d-Common-Lisp-implementation-of-RRT-_0028Rapidily-exploring-Random-Tree_0029" href="#CL_002dRRT-_002d-Common-Lisp-implementation-of-RRT-Rapidily-exploring-Random-Tree">1. CL-RRT - Common Lisp implementation of RRT (Rapidily exploring Random Tree)</a>
+  <ul class="toc">
+    <li><a name="toc-Dependencies-1" href="#Dependencies">1.1 Dependencies</a></li>
+    <li><a name="toc-Installation-1" href="#Installation">1.2 Installation</a></li>
+    <li><a name="toc-Author-1" href="#Author">1.3 Author</a></li>
+  </ul></li>
+  <li><a name="toc-API-1" href="#API">2. API</a>
+  <ul class="toc">
+    <li><a name="toc-Core-functions-and-generic-functions-1" href="#Core-functions-and-generic-functions">2.1 Core functions and generic functions</a></li>
+    <li><a name="toc-Tree-classes-1" href="#Tree-classes">2.2 Tree classes</a></li>
+    <li><a name="toc-Helper-functions-1" href="#Helper-functions">2.3 Helper functions</a>
+    <ul class="toc">
+      <li><a name="toc-Path-and-tree-walking-1" href="#Path-and-tree-walking">2.3.1 Path and tree walking</a></li>
+      <li><a name="toc-Node-manipulation-1" href="#Node-manipulation">2.3.2 Node manipulation</a></li>
+    </ul>
+</li>
+  </ul></li>
+  <li><a name="toc-Copyright-1" href="#Copyright">3. Copyright</a></li>
+  <li><a name="toc-License-1" href="#License">4. License</a></li>
+</ul>
+</div>
+<hr size="1">
+<a name="SEC_About"></a>
+<table cellpadding="1" cellspacing="1" border="0">
+<tr><td valign="middle" align="left">[<a href="#Top" title="Cover (top) of document">冒頭</a>]</td>
+<td valign="middle" align="left">[<a href="#SEC_Contents" title="Table of contents">目次</a>]</td>
+<td valign="middle" align="left">[見出し]</td>
+<td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
+</tr></table>
+<h1>この文書について</h1>
+<p>
+  この文書は<em>guicho</em>によって<em>2013年3月月26日</em>に<a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.82</em></a>を用いて生成されました。
+</p>
+<p>
+ナビゲーションパネル中のボタンには以下の意味があります。
+</p>
+<table border="1">
+  <tr>
+    <th> ボタン </th>
+    <th> 名称 </th>
+    <th> 移動先 </th>
+    <th> 1.2.3項からの移動先</th>
+  </tr>
+  <tr>
+    <td align="center"> [ &lt; ] </td>
+    <td align="center">Back</td>
+    <td>Previous section in reading order</td>
+    <td>1.2.2</td>
+  </tr>
+  <tr>
+    <td align="center"> [ &gt; ] </td>
+    <td align="center">Forward</td>
+    <td>Next section in reading order</td>
+    <td>1.2.4</td>
+  </tr>
+  <tr>
+    <td align="center"> [ &lt;&lt; ] </td>
+    <td align="center">FastBack</td>
+    <td>Beginning of this chapter or previous chapter</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <td align="center"> [上] </td>
+    <td align="center">Up</td>
+    <td>Up section</td>
+    <td>1.2</td>
+  </tr>
+  <tr>
+    <td align="center"> [ &gt;&gt; ] </td>
+    <td align="center">FastForward</td>
+    <td>Next chapter</td>
+    <td>2</td>
+  </tr>
+  <tr>
+    <td align="center"> [冒頭] </td>
+    <td align="center">冒頭</td>
+    <td>Cover (top) of document</td>
+    <td> &nbsp; </td>
+  </tr>
+  <tr>
+    <td align="center"> [目次] </td>
+    <td align="center">目次</td>
+    <td>Table of contents</td>
+    <td> &nbsp; </td>
+  </tr>
+  <tr>
+    <td align="center"> [見出し] </td>
+    <td align="center">見出し</td>
+    <td>見出し</td>
+    <td> &nbsp; </td>
+  </tr>
+  <tr>
+    <td align="center"> [ ? ] </td>
+    <td align="center">About</td>
+    <td>About (help)</td>
+    <td> &nbsp; </td>
+  </tr>
+</table>
+
+<p>
+<strong>例</strong>では、以下に示す構造を持つ文書の<strong>1.2.3項</strong>を現在位置に仮定しています。
+</p>
+
+<ul>
+  <li> 1. 第1項
+    <ul>
+      <li>1.1 第1.1項
+        <ul>
+          <li>...</li>
+        </ul>
+      </li>
+      <li>1.2 第1.2項
+        <ul>
+          <li>1.2.1 第1.2.1項</li>
+          <li>1.2.2 第1.2.2項</li>
+          <li>1.2.3 第1.2.3項 &nbsp; &nbsp;
+            <strong>&lt;== 現在位置 </strong></li>
+          <li>1.2.4 第1.2.4項</li>
+        </ul>
+      </li>
+      <li>1.3 第1.3項
+        <ul>
+          <li>...</li>
+        </ul>
+      </li>
+      <li>1.4 第1.4項</li>
+    </ul>
+  </li>
+</ul>
+
+<hr size="1">
+<p>
+ <font size="-1">
+  この文書は<em>guicho</em>によって<em>2013年3月月26日</em>に<a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.82</em></a>を用いて生成されました。
+ </font>
+ <br>
+
+</p>
+</body>
+</html>

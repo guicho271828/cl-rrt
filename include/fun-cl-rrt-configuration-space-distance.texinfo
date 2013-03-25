@@ -1,0 +1,7 @@
+@findex configuration-space-distance
+@anchor{Generic-Function configuration-space-distance}
+@deffn {Generic Function} {configuration-space-distance} point1 point2
+This generic function should provide a method
+to measure the distance between two points in C-space
+ (configuration space).
+@end deffn

@@ -1,0 +1,18 @@
+@tindex rrt-tree-mixin
+@anchor{Class rrt-tree-mixin}
+@deftp {Class} {rrt-tree-mixin}
+Class precedence list: @code{@lw{rrt-tree-mixin}, @lw{standard-object}, @lw{t}}
+
+Slots:
+@itemize
+@item @code{root} --- initarg: @code{@w{:root}}; reader: @code{@w{cl-rrt:root}}; writer: @code{@w{(setf cl-rrt:root)}}
+
+Root node.
+@item @code{finish} --- initarg: @code{@w{:finish-node}}; reader: @code{@w{cl-rrt:finish-node}}; writer: @code{@w{(setf cl-rrt:finish-node)}}
+
+Stores the node which was found to be
+		   nearest to the goal, etc.
+@end itemize
+
+The abstract class of rrt-tree.
+@end deftp

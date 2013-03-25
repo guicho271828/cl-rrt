@@ -1,0 +1,6 @@
+@findex count-node
+@anchor{Generic-Function count-node}
+@deffn {Generic Function} {count-node} tree
+This generic function should provide a method
+to count the number of leafs.
+@end deffn

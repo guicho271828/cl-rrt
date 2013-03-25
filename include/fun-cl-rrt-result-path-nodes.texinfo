@@ -1,0 +1,7 @@
+@findex result-path-nodes
+@anchor{Function result-path-nodes}
+@deffn {Function} {result-path-nodes} tree
+Returns the nodes of the computed path in a list, from
+the root to the end. Returns nil if the path was not found. The list
+contains the root of the tree.
+@end deffn

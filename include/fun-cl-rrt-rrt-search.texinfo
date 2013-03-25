@@ -1,0 +1,34 @@
+@findex rrt-search
+@anchor{Function rrt-search}
+@deffn {Function} {rrt-search} start-v random-generator new-v-generator edge-prohibited-p finish-p @&key tree tree-class max-nodes max-iteration run-on-node
+RRT-search function.
+let V as a type variable.
+
+@itemize
+@item V @code{:} a vector class which represents the point in C-space.
+           (configuration-space-distance V V) should return a number.
+@item (node V) @code{:} an rrt-tree-node instance whose `content' slot is V.
+           non-holonomic parameters like velocity and acceralation
+           should be stored within (node V), not in V.
+@end itemize
+
+`rrt-search' returns the result tree as its primary value.  The
+secondaly value is the total number of the nodes, and third value is
+the number of iteration done in the search.
+
+the arguments should be of types as listed in the following @code{:}
+
+@itemize
+@item start-v @code{:} V
+@item random-generator: (no args) → V
+@item new-v-generator: V, V → V ; nearest, random → actual
+@item edge-prohibited-p: V, V → bool ; nearest, new → result
+@item finish-p: V → bool ; new → result
+@item run-on-node: V, V → t ; nearest, new →
+
+@item container-generator: (no args) → (container (node V))
+@item container-insert: V, (container (node V)) → (container (node V))
+@item container-nearest-search: V, (container (node V)) → V
+@end itemize
+
+@end deffn

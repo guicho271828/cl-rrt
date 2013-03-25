@@ -1,0 +1,7 @@
+@tindex no-enough-path
+@anchor{Condition no-enough-path}
+@deftp {Condition} {no-enough-path}
+Class precedence list: @code{@lw{no-enough-path}, @lw{condition}, @lw{t}}
+
+as the name says.
+@end deftp

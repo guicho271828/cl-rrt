@@ -1,0 +1,6 @@
+@findex rrt-node
+@anchor{Function rrt-node}
+@deffn {Function} {rrt-node} content
+
+Identical to =(make-instance 'rrt-tree-node :content content)=
+@end deffn
