@@ -1,0 +1,889 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
+<title>CL-RRT</title>
+<!-- 2013-03-27 水 15:53 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="author" content="Masataro Asai"/>
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012  Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">CL-RRT</h1>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> CL-RRT - Common Lisp implementation of RRT (Rapidily exploring Random Tree)</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+RRT is a fast probabilistic multidimentional path-plannning algorithm
+introduced by S.M.LaValle <sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup>. It now has a widespread use in robotics
+and now able to handle the real time systems such as automatic car
+driving AI. Also, it has various extentions and optimization methods
+such as:
+</p>
+
+<ul class="org-ul">
+<li>MP-RRT
+</li>
+<li>RR-belief-tree
+</li>
+<li>RRG
+</li>
+<li>RRT*
+</li>
+<li>St-RRT
+</li>
+</ul>
+</div>
+
+<div id="outline-container-1-1" class="outline-3">
+<h3 id="sec-1-1"><span class="section-number-3">1.1</span> Dependencies</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+This library is at least tested on implementation listed below:
+</p>
+
+<ul class="org-ul">
+<li>SBCL 1.1.2 on X86-64 Linux  3.2.0-39-generic (author's environment)
+</li>
+</ul>
+
+<p>
+Also, it depends on the following libraries:
+</p>
+
+<dl class="org-dl">
+<dt> ITERATE  </dt><dd>    Jonathan Amsterdam's iterator/gatherer/accumulator facility
+</dd>
+
+<dt> ALEXANDRIA  </dt><dd>    Alexandria is a collection of portable public domain utilities.
+</dd>
+
+<dt> CL-ANNOT by Tomohiro Matsuyama </dt><dd>    Python-like Annotation Syntax for Common Lisp
+</dd>
+
+<dt> ANAPHORA  </dt><dd></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-1-2" class="outline-3">
+<h3 id="sec-1-2"><span class="section-number-3">1.2</span> Installation</h3>
+<div class="outline-text-3" id="text-1-2">
+<ul class="org-ul">
+<li>First grab the code with <code>git clone git@github.com:guicho271828/cl-rrt.git</code>
+</li>
+<li>Put it in local-project folder
+</li>
+<li>open slime REPL
+</li>
+<li><code>(ql:quickload :cl-rrt)</code> and the library will be installed along with all
+the dependencies
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-1-3" class="outline-3">
+<h3 id="sec-1-3"><span class="section-number-3">1.3</span> Author</h3>
+<div class="outline-text-3" id="text-1-3">
+<ul class="org-ul">
+<li>Masataro Asai (guicho2.71828@gmail.com)
+</li>
+<li>Univ. Tokyo -&gt; Grad. school of Tokyo University
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> API</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Core Interfaces</h3>
+<div class="outline-text-3" id="text-2-1">
+</div><div id="outline-container-2-1-1" class="outline-4">
+<h4 id="sec-2-1-1"><span class="section-number-4">2.1.1</span> Class: <code>rrt-tree-mixin</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="class">class</span></span></h4>
+<div class="outline-text-4" id="text-2-1-1">
+<p>
+The abstract interface mixin class of rrt-tree. User do not create
+an instance of it, but rather inherit it. It has three slots and accessors with the same names:
+</p>
+
+<dl class="org-dl">
+<dt> root </dt><dd>the root node of the tree. of type rrt-tree-node.
+</dd>
+<dt> nodes </dt><dd>an abstract slot which should be redefined in the inherited class.
+stores a container of the entire nodes.
+</dd>
+<dt> finish-nodes </dt><dd>a slot which contains the last node of the computed path.
+It is bound to nil, it means the previous search has failed to find
+a path which satisfies the goal condition.
+</dd>
+</dl>
+</div>
+
+<ol class="org-ol"><li>Inheritance<br/><div class="outline-text-5" id="text-2-1-1-1">
+<ul class="org-ul">
+<li>Parent classes:
+    <i>standard-object</i>
+</li>
+<li>Precedence list:
+<i>rrt-tree-mixin</i>, <i>standard
+object</i>, <i>slot-object</i>, <i>t</i>
+</li>
+<li>Direct subclasses:
+    <i>rrt-tree-tree</i>, <i>rrt-tree-list</i>
+</li>
+</ul>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-1-2" class="outline-4">
+<h4 id="sec-2-1-2"><span class="section-number-4">2.1.2</span> Class: <code>rrt-tree-node</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="class">class</span></span></h4>
+<div class="outline-text-4" id="text-2-1-2">
+<p>
+Node class of Random Tree. 
+</p>
+
+<dl class="org-dl">
+<dt> parent </dt><dd>Parent node. 
+</dd>
+<dt> children </dt><dd>a list of child nodes.
+</dd>
+<dt> content </dt><dd>Stores C-space point data which should support a method
+<i>cofiguration-space-distance</i>. All holonomic and non-holonomic values
+such as position, velocity and accelaration should be stored in
+the instance in <i>content</i>.
+</dd>
+</dl>
+</div>
+
+<ol class="org-ol"><li>Inheritance<br/><div class="outline-text-5" id="text-2-1-2-1">
+<ul class="org-ul">
+<li>Parent classes:
+    <i>standard-object</i>
+</li>
+<li>Precedence list:
+<i>rrt-tree-node</i>, <i>standard
+object</i>, <i>slot-object</i>, <i>t</i>
+</li>
+<li>Direct subclasses:
+None.
+</li>
+</ul>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-1-3" class="outline-4">
+<h4 id="sec-2-1-3"><span class="section-number-4">2.1.3</span> Standard Generic Function: <code>configuration-space-distance</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-1-3">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-1-3-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(configuration-space-distance point1 point2)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-1-3-2">
+<p>
+This generic function should provide a method to measure the distance
+between two points in C-space (configuration space). Users should
+implement the desired method on its own.
+</p>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-1-4" class="outline-4">
+<h4 id="sec-2-1-4"><span class="section-number-4">2.1.4</span> Standard Generic Function: <code>nearest-node</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-1-4">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-1-4-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(nearest-node target tree)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-1-4-2">
+<p>
+This generic function should implement a method
+which finds the nearest node in a <i>tree</i> to the <i>target</i>.
+<i>target</i> is an instance of holonomic point class.
+</p>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-1-5" class="outline-4">
+<h4 id="sec-2-1-5"><span class="section-number-4">2.1.5</span> Function: <code>rrt-search</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-1-5">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(rrt-search start-v
+            random-generator new-v-generator
+            edge-prohibited-p finish-p
+            <span style="color: #228b22;">&amp;key</span> tree (tree-class 'rrt-tree-tree) (max-nodes 15)
+            (max-iteration 30) run-on-node)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">--&gt; tree, num-nodes, iteration</span>
+</pre>
+</div>
+
+<p>
+RRT-search function.
+let <i>V</i> as a type variable.
+</p>
+
+<dl class="org-dl">
+<dt> <i>V</i> </dt><dd>a vector class which represents a point in C-space.
+(configuration-space-distance V V) should return a number.
+</dd>
+<dt> (node <i>V</i>) </dt><dd>an rrt-tree-node instance whose <i>content</i> slot is V.
+holonomic and non-holonomic parameters like velocity
+and acceralation should be stored in V.
+</dd>
+</dl>
+
+<p>
+I use these expression above as a type specifier in the following
+description and specification.
+</p>
+
+<dl class="org-dl">
+<dt> start-v </dt><dd><i>V</i> &#x2013; A starting point of RRT searching in a C-space. It
+will be stored in the root node of the <i>tree</i> if no
+<i>tree</i> is specified in the <b>&amp;key</b> arguments. 
+</dd>
+<dt> random-generator </dt><dd>(no args) -&gt; <i>V</i> random
+</dd>
+<dt> new-v-generator </dt><dd><i>V</i> nearest, <i>V</i> random -&gt; <i>V</i> new
+</dd>
+<dt> edge-prohibited-p </dt><dd><i>V</i> nearest, <i>V</i> new -&gt; <i>Bool</i> result
+</dd>
+<dt> finish-p </dt><dd><i>V</i> new -&gt; <i>Bool</i> result
+</dd>
+
+<dt> tree </dt><dd>A tree to be used as a prototype of the search.  It is
+going to be destructively modified in the search.  If not
+specified, it internally creates an instance of
+<i>tree-class</i>.
+</dd>
+<dt> tree-class </dt><dd>a <i>Class specifier</i>.
+</dd>
+<dt> max-nodes </dt><dd>a <i>Fixnum</i> which specify the maximum number of nodes
+in the tree. When the total number of nodes reaches
+this limit, it finish the search iteration without
+setting the <i>finish-node</i> of <i>tree</i>.
+</dd>
+<dt> max-iteration </dt><dd>a <i>Fixnum</i> which specify the maximum number of
+iteration in <i>rrt-search</i>. When the total number
+of iteration reaches this limit, it finish the
+search iteration without setting the
+<i>finish-node</i> of <i>tree</i>.
+</dd>
+<dt> run-on-node </dt><dd><i>V</i> nearest, <i>V</i> new -&gt; t
+&#x2013; a function called in the last of each iteration.
+</dd>
+</dl>
+
+<p>
+<i>rrt-search</i> returns the result tree as its primary value.  The
+secondaly value is the total number of the nodes, and third value is
+the number of iteration done in the search. When the search fails or
+the search is interrupted, the <i>finish-node</i> of the tree is set to nil.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> Tree classes</h3>
+<div class="outline-text-3" id="text-2-2">
+</div><div id="outline-container-2-2-1" class="outline-4">
+<h4 id="sec-2-2-1"><span class="section-number-4">2.2.1</span> Class: <code>rrt-tree-list</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="class">class</span></span></h4>
+<div class="outline-text-4" id="text-2-2-1">
+</div><ol class="org-ol"><li>Inheritance<br/><div class="outline-text-5" id="text-2-2-1-1">
+<ul class="org-ul">
+<li>Parent classes:
+   <i>rrt-tree-mixin</i>
+</li>
+<li>Precedence list:
+<i>rrt-tree-list</i>, <i>rrt-tree
+mixin</i>, <i>standard-object</i>, <i>slot
+object</i>, <i>t</i>
+</li>
+<li>Direct subclasses:
+None.
+</li>
+</ul>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-2-1-2">
+<p>
+an rrt-tree implementation which uses
+ a simple linear search method for nearest-search.
+</p>
+</div>
+</li>
+<li>Direct Slots<br/><div class="outline-text-5" id="text-2-2-1-3">
+</div>
+
+<ol class="org-ol"><li>Slot: <code>nodes</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="slot">slot</span></span><br/><div class="outline-text-6" id="text-2-2-1-3-1">
+<ul class="org-ul">
+<li>Value type: <code>list</code>
+</li>
+<li>Initial value: <code>NIL</code>
+</li>
+<li>Initargs: none
+</li>
+<li>Allocation: instance
+</li>
+</ul>
+
+<p>
+Stores the list of nodes. 
+</p>
+</div>
+</li></ol>
+</li></ol>
+</div>
+<div id="outline-container-2-2-2" class="outline-4">
+<h4 id="sec-2-2-2"><span class="section-number-4">2.2.2</span> Class: <code>rrt-tree-tree</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="class">class</span></span></h4>
+<div class="outline-text-4" id="text-2-2-2">
+</div><ol class="org-ol"><li>Inheritance<br/><div class="outline-text-5" id="text-2-2-2-1">
+<ul class="org-ul">
+<li>Parent classes:
+    <i>rrt-tree-mixin</i>
+</li>
+<li>Precedence list:
+<i>rrt-tree-tree</i>, <i>rrt-tree
+mixin</i>, <i>standard-object</i>, <i>slot
+object</i>, <i>t</i>
+</li>
+<li>Direct subclasses:
+None.
+</li>
+</ul>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-2-2-2">
+<p>
+An rrt-tree implementation which 
+does breadth-first search in nearest-search.
+The slot <i>nodes</i> are never used. 
+</p>
+</div>
+</li></ol>
+</div>
+</div>
+<div id="outline-container-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> Conditions</h3>
+<div class="outline-text-3" id="text-2-3">
+</div><div id="outline-container-2-3-1" class="outline-4">
+<h4 id="sec-2-3-1"><span class="section-number-4">2.3.1</span> Class: <code>child-not-found</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="class">class</span></span></h4>
+<div class="outline-text-4" id="text-2-3-1">
+</div><ol class="org-ol"><li>Inheritance<br/><div class="outline-text-5" id="text-2-3-1-1">
+<ul class="org-ul">
+<li>Parent classes:
+    <i>simple-condition</i>
+</li>
+<li>Precedence list:
+<i>child-not-found</i>, <i>simple
+condition</i>, <i>condition</i>, <i>slot
+object</i>, <i>t</i>
+</li>
+<li>Direct subclasses:
+None.
+</li>
+</ul>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-3-1-2">
+<p>
+Signaled when you try to <i>disconnect</i> a child node from a node that is
+not its parent.
+</p>
+</div>
+</li>
+<li>Direct Slots<br/><div class="outline-text-5" id="text-2-3-1-3">
+</div>
+
+<ol class="org-ol"><li>Slot: <code>parent</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="slot">slot</span></span><br/></li>
+<li>Slot: <code>child</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="slot">slot</span></span><br/></li></ol>
+</li></ol>
+</div>
+</div>
+<div id="outline-container-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> Path and tree walking</h3>
+<div class="outline-text-3" id="text-2-4">
+</div><div id="outline-container-2-4-1" class="outline-4">
+<h4 id="sec-2-4-1"><span class="section-number-4">2.4.1</span> Function: <code>result-path</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-4-1">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-1-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(result-path tree)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-4-1-2">
+<p>
+Returns a list of C-space points of the computed paths
+from the root to the end.  Returns nil if the path was not found. The
+list contains the root of the tree.
+</p>
+
+
+
+<hr/>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-4-2" class="outline-4">
+<h4 id="sec-2-4-2"><span class="section-number-4">2.4.2</span> Function: <code>result-path-nodes</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-4-2">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-2-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(result-path-nodes tree)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-4-2-2">
+<p>
+Returns the nodes of the computed path in a list, from
+the root to the end. Returns nil if the path was not found. The list
+contains the root of the tree.
+</p>
+
+
+
+<hr/>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-4-3" class="outline-4">
+<h4 id="sec-2-4-3"><span class="section-number-4">2.4.3</span> Function: <code>map-rrt-tree-content-recursively</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-4-3">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-3-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(map-rrt-tree-content-recursively node fn)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-4-3-2">
+<p>
+Map over the contents of RRT-TREE-NODEs of the tree and
+ return each result in a nested tree 
+with the same structure as the original random-tree.
+</p>
+
+
+
+<hr/>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-4-4" class="outline-4">
+<h4 id="sec-2-4-4"><span class="section-number-4">2.4.4</span> Function: <code>map-rrt-tree-node-recursively</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-4-4">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-4-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(map-rrt-tree-node-recursively node fn)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-4-4-2">
+<p>
+Map over the RRT-TREE-NODEs of the tree and
+ return the results in a nested cons tree 
+with the same structure as that of the original random-tree.
+</p>
+
+
+
+<hr/>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-4-5" class="outline-4">
+<h4 id="sec-2-4-5"><span class="section-number-4">2.4.5</span> Function: <code>mapc-rrt-tree-content-recursively</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-4-5">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-5-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(mapc-rrt-tree-content-recursively node fn)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-4-5-2">
+<p>
+Mapc over the contents of RRT-TREE-NODEs ofthe tree and returns nil.
+ Only for the side effect.
+</p>
+
+
+
+<hr/>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-4-6" class="outline-4">
+<h4 id="sec-2-4-6"><span class="section-number-4">2.4.6</span> Function: <code>mapc-rrt-tree-node-recursively</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-4-6">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-6-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(mapc-rrt-tree-node-recursively node fn)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-4-6-2">
+<p>
+Mapc over the RRT-TREE-NODEs of the tree and returns nil.
+ Only for the side effect.
+</p>
+
+
+
+<hr/>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-4-7" class="outline-4">
+<h4 id="sec-2-4-7"><span class="section-number-4">2.4.7</span> Function: <code>nnext-branch</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-4-7">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-7-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(nnext-branch tree)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-4-7-2">
+<p>
+Destructively modifies and return an RRT-TREE.  If the
+<i>tree</i> has a finish node, it finds a path from the root to
+the end and then replace the root with the next node in that path.
+Otherwise it choose one child of the root at random and replace the
+root with it. In both cases the new root is orphanized.
+</p>
+
+
+
+<hr/>
+</div>
+</li></ol>
+</div>
+</div>
+<div id="outline-container-2-5" class="outline-3">
+<h3 id="sec-2-5"><span class="section-number-3">2.5</span> Node manipulation helper</h3>
+<div class="outline-text-3" id="text-2-5">
+</div><div id="outline-container-2-5-1" class="outline-4">
+<h4 id="sec-2-5-1"><span class="section-number-4">2.5.1</span> Function: <code>rrt-node</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-5-1">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-5-1-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(rrt-node content)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-5-1-2">
+<p>
+Identical to <code>(make-instance 'rrt-tree-node :content content)</code>
+</p>
+
+
+
+<hr/>
+</div>
+</li></ol>
+</div>
+
+<div id="outline-container-2-5-2" class="outline-4">
+<h4 id="sec-2-5-2"><span class="section-number-4">2.5.2</span> Function: <code>adopt-children</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-5-2">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-5-2-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(adopt-children new-parent old-parent)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-5-2-2">
+<p>
+HELPER FUINCTION: removes the children of old-parent and
+the new-parent takes all of them.
+</p>
+
+
+
+<hr/>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-5-3" class="outline-4">
+<h4 id="sec-2-5-3"><span class="section-number-4">2.5.3</span> Function: <code>connect</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-5-3">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-5-3-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(connect parent child)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-5-3-2">
+<p>
+connect two nodes as a parent and a child.
+</p>
+
+
+
+<hr/>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-5-4" class="outline-4">
+<h4 id="sec-2-5-4"><span class="section-number-4">2.5.4</span> Function: <code>disconnect</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-5-4">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-5-4-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(disconnect parent child)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-5-4-2">
+<p>
+disconnect a parent and its child.
+signals CHILD-NOT-FOUND &lt; SIMPLE-CONDITION.
+</p>
+
+
+
+<hr/>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-5-5" class="outline-4">
+<h4 id="sec-2-5-5"><span class="section-number-4">2.5.5</span> Function: <code>neglect</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-5-5">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-5-5-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(neglect parent)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-5-5-2">
+<p>
+HELPER FUNCTION: disconnect all children from the
+specified parent
+</p>
+
+
+
+<hr/>
+</div>
+</li></ol>
+</div>
+<div id="outline-container-2-5-6" class="outline-4">
+<h4 id="sec-2-5-6"><span class="section-number-4">2.5.6</span> Function: <code>orphanize</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
+<div class="outline-text-4" id="text-2-5-6">
+</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-5-6-1">
+<div class="org-src-container">
+
+<pre class="src src-lisp">(orphanize child)
+</pre>
+</div>
+</div>
+</li>
+<li>Description<br/><div class="outline-text-5" id="text-2-5-6-2">
+<p>
+HELPER FUNCTION: ensure a node doesn't have a parent
+</p>
+
+
+
+<hr/>
+</div>
+</li></ol>
+</div>
+</div>
+</div>
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Copyright</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Copyright (c) 2013 Masataro Asai (guicho2.71828@gmail.com)
+</p>
+</div>
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> License</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+Licensed under the LLGPL License.
+</p>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">&#33050;&#27880;: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" name="fn.1" class="footnum" href="#fnr.1">1</a></sup> <p class="footpara">
+S.M. LaValle and J.J. Kuffner. Randomized kinodynamic
+planning. <i>The International Journal of Robotics Research</i>, Vol. 20,
+No. 5, pp. 378–400, 2001.
+</p></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="author">&#33879;&#32773;: Masataro Asai</p>
+<p class="date">Created: 2013-03-27 水 15:53</p>
+<p class="creator">Generated by <a href="http://orgmode.org">Org</a> mode 8.0-pre in <a href="http://www.gnu.org/software/emacs/">Emacs</a> 23.3.1.</p>
+<p class="xhtml-validation"><a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a></p>
+</div>
+</body>
+</html>

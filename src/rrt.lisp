@@ -94,16 +94,22 @@ with the same structure as the original random-tree."
 
 @export
 @export-accessors
-@doc "The abstract class of rrt-tree."
+@doc "The abstract interface mixin class of rrt-tree. User do not create
+an instance of it, but rather inherit it. It has three slots and accessors with the same names:
+
++ root : the root node of the tree. of type rrt-tree-node.
++ nodes : an abstract slot which should be redefined in the inherited class.
+   stores a container of the entire nodes.
++ finish : a slot which contains the last node of the computed path.
+   It is bound to nil, it means the previous search has failed to find
+   a path which satisfies the goal condition."
 (defclass rrt-tree-mixin ()
   ((root :type (or null rrt-tree-node)
-		 :documentation "Root node."
 		 :accessor root
 		 :initarg :root)
    (nodes :accessor nodes)
-   (finish :type (or null rrt-tree-node)
-		   :documentation "Stores the node which was found to be
-		   nearest to the goal, etc."
+   (finish-node :type (or null rrt-tree-node)
+		   :documentation ""
 		   :initarg :finish-node
 		   :accessor finish-node
 		   :initform nil)))
@@ -168,12 +174,12 @@ the arguments should be of types as listed in the following :
 + container-nearest-search: V, (container (node V)) -> V
 "
 (defun rrt-search
-	(start-v
-	 random-generator
+	(random-generator
 	 new-v-generator
 	 edge-prohibited-p
 	 finish-p
 	 &key
+	 start-v
 	 tree
 	 (tree-class 'rrt-tree-tree)
 	 (max-nodes 15)
@@ -181,9 +187,11 @@ the arguments should be of types as listed in the following :
 	 run-on-node)
   (iter
 	(with start-node =
-		  (if tree
-			  (root tree)
-			  (rrt-node start-v)))
+		  (cond
+			((and tree (root tree)) (root tree))
+			(start-v (rrt-node start-v))
+			(t (error "either start-v or tree needs to be specified. ~
+                       tree should have its root node already.")))
 	(with tree = 
 		  (if tree
 			  (reinitialize-instance tree :finish-node nil)
@@ -207,7 +215,7 @@ the arguments should be of types as listed in the following :
 	  (terminate))
 	(next i)
 	(finally
-	 (return (values tree i j)))))
+	 (return (values tree i j))))))
 
 @export @doc "Returns the nodes of the computed path in a list, from
 the root to the end. Returns nil if the path was not found. The list
@@ -255,10 +263,3 @@ root with it. In both cases the new root is orphanized."
 						(random-elt (children (root tree))))))
 	(reinitialize-instance tree :root new-root)
 	tree))
-
-@export
-@export-accessors
-@doc "as the name says."
-(define-condition no-enough-path (simple-condition)
-  ((tree :reader tree :initarg :tree)))
-
