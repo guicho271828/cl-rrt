@@ -1,6 +1,0 @@
-@findex mapc-rrt-tree-content-recursively
-@anchor{Function mapc-rrt-tree-content-recursively}
-@deffn {Function} {mapc-rrt-tree-content-recursively} node fn
-Mapc over the contents of RRT-TREE-NODEs ofthe tree and returns nil.
- Only for the side effect.
-@end deffn

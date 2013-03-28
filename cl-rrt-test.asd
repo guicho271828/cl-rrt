@@ -12,7 +12,8 @@
   :author "Masataro Asai"
   :license "LLGPL"
   :depends-on (:cl-rrt
-               :cl-test-more)
+               :cl-test-more
+			   :vecto)
   :components ((:module "t"
                 :components
                 ((:file "cl-rrt"))))

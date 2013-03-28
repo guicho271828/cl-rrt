@@ -1,7 +1,0 @@
-@findex map-rrt-tree-node-recursively
-@anchor{Function map-rrt-tree-node-recursively}
-@deffn {Function} {map-rrt-tree-node-recursively} node fn
-Map over the RRT-TREE-NODEs of the tree and
- return the results in a nested cons tree 
-with the same structure as that of the original random-tree.
-@end deffn

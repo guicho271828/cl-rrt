@@ -1,6 +1,0 @@
-@tindex child-not-found
-@anchor{Condition child-not-found}
-@deftp {Condition} {child-not-found}
-Class precedence list: @code{@lw{child-not-found}, @lw{condition}, @lw{t}}
-
-@end deftp

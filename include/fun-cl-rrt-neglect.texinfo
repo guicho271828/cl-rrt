@@ -1,6 +1,0 @@
-@findex neglect
-@anchor{Function neglect}
-@deffn {Function} {neglect} parent
-@code{helper} @code{function:} disconnect all children from the
-specified parent
-@end deffn

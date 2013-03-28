@@ -1,8 +1,0 @@
-@tindex rrt-tree-list
-@anchor{Class rrt-tree-list}
-@deftp {Class} {rrt-tree-list}
-Class precedence list: @code{@lw{rrt-tree-list}, @lw{rrt-tree-mixin}, @lw{standard-object}, @lw{t}}
-
-an rrt-tree implementation which uses
- a simple linear search method for nearest-search.
-@end deftp

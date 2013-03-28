@@ -1,6 +1,0 @@
-@findex adopt-children
-@anchor{Function adopt-children}
-@deffn {Function} {adopt-children} new-parent old-parent
-@code{helper} @code{fuinction:} removes the children of old-parent and
-the new-parent takes all of them.
-@end deffn

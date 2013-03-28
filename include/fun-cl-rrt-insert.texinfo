@@ -1,6 +1,0 @@
-@findex insert
-@anchor{Generic-Function insert}
-@deffn {Generic Function} {insert} content tree
-This generic function should provide a method
- to insert a `content' to the `tree'.
-@end deffn

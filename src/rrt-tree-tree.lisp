@@ -31,7 +31,7 @@ seaches from the root in nearest-search."
 	   (let* ((content (content node))
 			  (dist (configuration-space-distance
 					 content target-content)))
-		 (when (d< dist best-distance)
+		 (when (< dist best-distance)
 		   (setf best-node node
 				 best-content content
 				 best-distance dist)))))

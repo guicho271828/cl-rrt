@@ -1,6 +1,0 @@
-@findex nearest-node
-@anchor{Generic-Function nearest-node}
-@deffn {Generic Function} {nearest-node} target tree
-This generic function should implement a method
-which finds the nearest node in a `tree' to the `target'.
-@end deffn

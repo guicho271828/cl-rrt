@@ -1,5 +1,0 @@
-@findex connect
-@anchor{Function connect}
-@deffn {Function} {connect} parent child
-connect two nodes as a parent and a child.
-@end deffn

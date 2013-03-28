@@ -1,9 +1,0 @@
-@findex nnext-branch
-@anchor{Function nnext-branch}
-@deffn {Function} {nnext-branch} tree
-Destructively modifies and return an @code{rrt-tree}.  If the
-`tree' has a finish node, it finds a path from the root to
-the end and then replace the root with the next node in that path.
-Otherwise it choose one child of the root at random and replace the
-root with it. In both cases the new root is orphanized.
-@end deffn

@@ -1,6 +1,0 @@
-@findex leafs
-@anchor{Generic-Function leafs}
-@deffn {Generic Function} {leafs} tree
-This generic function should provide a method
-to accumulate all leafs into a list.
-@end deffn

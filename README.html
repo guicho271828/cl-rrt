@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
 <title>CL-RRT</title>
-<!-- 2013-03-27 水 15:53 -->
+<!-- 2013-03-28 木 09:24 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="generator" content="Org-mode"/>
 <meta name="author" content="Masataro Asai"/>
@@ -140,6 +140,11 @@ for the JavaScript code in this tag.
 <div id="outline-container-1" class="outline-2">
 <h2 id="sec-1"><span class="section-number-2">1</span> CL-RRT - Common Lisp implementation of RRT (Rapidily exploring Random Tree)</h2>
 <div class="outline-text-2" id="text-1">
+
+<div class="figure">
+<p><img src="test.png"  alt="test.png"/></p>
+</div>
+
 <p>
 RRT is a fast probabilistic multidimentional path-plannning algorithm
 introduced by S.M.LaValle <sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup>. It now has a widespread use in robotics
@@ -227,41 +232,27 @@ the dependencies
 <h3 id="sec-2-1"><span class="section-number-3">2.1</span> Core Interfaces</h3>
 <div class="outline-text-3" id="text-2-1">
 </div><div id="outline-container-2-1-1" class="outline-4">
-<h4 id="sec-2-1-1"><span class="section-number-4">2.1.1</span> Class: <code>rrt-tree-mixin</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="class">class</span></span></h4>
+<h4 id="sec-2-1-1"><span class="section-number-4">2.1.1</span> Standard Class: <code>rrt-tree-mixin</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="class">class</span></span></h4>
 <div class="outline-text-4" id="text-2-1-1">
 <p>
-The abstract interface mixin class of rrt-tree. User do not create
-an instance of it, but rather inherit it. It has three slots and accessors with the same names:
+The interface mixin class of random tree. User do not create an
+instance of it, but rather inherit it. It has three slots and
+accessors with the same names:
 </p>
 
 <dl class="org-dl">
 <dt> root </dt><dd>the root node of the tree. of type rrt-tree-node.
 </dd>
-<dt> nodes </dt><dd>an abstract slot which should be redefined in the inherited class.
-stores a container of the entire nodes.
+<dt> nodes </dt><dd>an abstract slot which should be redefined in the inherited
+class.  stores a container of the entire nodes.
 </dd>
-<dt> finish-nodes </dt><dd>a slot which contains the last node of the computed path.
-It is bound to nil, it means the previous search has failed to find
-a path which satisfies the goal condition.
+<dt> finish-node </dt><dd>a slot which contains the last node of the computed
+path.  It is bound to nil, it means the previous
+search has failed to find a path which satisfies the
+goal condition.
 </dd>
 </dl>
 </div>
-
-<ol class="org-ol"><li>Inheritance<br/><div class="outline-text-5" id="text-2-1-1-1">
-<ul class="org-ul">
-<li>Parent classes:
-    <i>standard-object</i>
-</li>
-<li>Precedence list:
-<i>rrt-tree-mixin</i>, <i>standard
-object</i>, <i>slot-object</i>, <i>t</i>
-</li>
-<li>Direct subclasses:
-    <i>rrt-tree-tree</i>, <i>rrt-tree-list</i>
-</li>
-</ul>
-</div>
-</li></ol>
 </div>
 <div id="outline-container-2-1-2" class="outline-4">
 <h4 id="sec-2-1-2"><span class="section-number-4">2.1.2</span> Class: <code>rrt-tree-node</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="class">class</span></span></h4>
@@ -282,74 +273,54 @@ the instance in <i>content</i>.
 </dd>
 </dl>
 </div>
+</div>
 
-<ol class="org-ol"><li>Inheritance<br/><div class="outline-text-5" id="text-2-1-2-1">
-<ul class="org-ul">
-<li>Parent classes:
-    <i>standard-object</i>
-</li>
-<li>Precedence list:
-<i>rrt-tree-node</i>, <i>standard
-object</i>, <i>slot-object</i>, <i>t</i>
-</li>
-<li>Direct subclasses:
-None.
-</li>
-</ul>
-</div>
-</li></ol>
-</div>
 <div id="outline-container-2-1-3" class="outline-4">
 <h4 id="sec-2-1-3"><span class="section-number-4">2.1.3</span> Standard Generic Function: <code>configuration-space-distance</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-1-3">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-1-3-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(configuration-space-distance point1 point2)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(configuration-space-distance point1 point2)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-1-3-2">
+
 <p>
 This generic function should provide a method to measure the distance
 between two points in C-space (configuration space). Users should
 implement the desired method on its own.
 </p>
 </div>
-</li></ol>
 </div>
 <div id="outline-container-2-1-4" class="outline-4">
 <h4 id="sec-2-1-4"><span class="section-number-4">2.1.4</span> Standard Generic Function: <code>nearest-node</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-1-4">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-1-4-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(nearest-node target tree)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(nearest-node target tree)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-1-4-2">
+
 <p>
 This generic function should implement a method
 which finds the nearest node in a <i>tree</i> to the <i>target</i>.
 <i>target</i> is an instance of holonomic point class.
 </p>
 </div>
-</li></ol>
 </div>
 <div id="outline-container-2-1-5" class="outline-4">
 <h4 id="sec-2-1-5"><span class="section-number-4">2.1.5</span> Function: <code>rrt-search</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-1-5">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(rrt-search start-v
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(rrt-search start-v
             random-generator new-v-generator
             edge-prohibited-p finish-p
-            <span style="color: #228b22;">&amp;key</span> tree (tree-class 'rrt-tree-tree) (max-nodes 15)
+            </span><span style="color: #228b22; background-color: #d3d3d3;">&amp;key</span><span style="background-color: #d3d3d3;"> tree (tree-class 'rrt-tree-tree) (max-nodes 15)
             (max-iteration 30) run-on-node)
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">--&gt; tree, num-nodes, iteration</span>
+</span><span style="color: #b22222; background-color: #d3d3d3;">;; </span><span style="color: #b22222; background-color: #d3d3d3;">--&gt; tree, num-nodes, iteration</span><span style="background-color: #d3d3d3;">
+</span>
 </pre>
 </div>
 
@@ -542,157 +513,119 @@ not its parent.
 </div><div id="outline-container-2-4-1" class="outline-4">
 <h4 id="sec-2-4-1"><span class="section-number-4">2.4.1</span> Function: <code>result-path</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-4-1">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-1-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(result-path tree)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(result-path tree)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-4-1-2">
+
 <p>
 Returns a list of C-space points of the computed paths
 from the root to the end.  Returns nil if the path was not found. The
 list contains the root of the tree.
 </p>
-
-
-
-<hr/>
 </div>
-</li></ol>
 </div>
+
 <div id="outline-container-2-4-2" class="outline-4">
 <h4 id="sec-2-4-2"><span class="section-number-4">2.4.2</span> Function: <code>result-path-nodes</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-4-2">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-2-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(result-path-nodes tree)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(result-path-nodes tree)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-4-2-2">
+
 <p>
 Returns the nodes of the computed path in a list, from
 the root to the end. Returns nil if the path was not found. The list
 contains the root of the tree.
 </p>
-
-
-
-<hr/>
 </div>
-</li></ol>
 </div>
+
+
 <div id="outline-container-2-4-3" class="outline-4">
 <h4 id="sec-2-4-3"><span class="section-number-4">2.4.3</span> Function: <code>map-rrt-tree-content-recursively</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-4-3">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-3-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(map-rrt-tree-content-recursively node fn)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(map-rrt-tree-content-recursively node fn)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-4-3-2">
+
 <p>
 Map over the contents of RRT-TREE-NODEs of the tree and
  return each result in a nested tree 
 with the same structure as the original random-tree.
 </p>
-
-
-
-<hr/>
 </div>
-</li></ol>
 </div>
+
 <div id="outline-container-2-4-4" class="outline-4">
 <h4 id="sec-2-4-4"><span class="section-number-4">2.4.4</span> Function: <code>map-rrt-tree-node-recursively</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-4-4">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-4-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(map-rrt-tree-node-recursively node fn)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(map-rrt-tree-node-recursively node fn)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-4-4-2">
+
 <p>
 Map over the RRT-TREE-NODEs of the tree and
  return the results in a nested cons tree 
 with the same structure as that of the original random-tree.
 </p>
-
-
-
-<hr/>
 </div>
-</li></ol>
 </div>
 <div id="outline-container-2-4-5" class="outline-4">
 <h4 id="sec-2-4-5"><span class="section-number-4">2.4.5</span> Function: <code>mapc-rrt-tree-content-recursively</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-4-5">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-5-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(mapc-rrt-tree-content-recursively node fn)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(mapc-rrt-tree-content-recursively node fn)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-4-5-2">
+
 <p>
 Mapc over the contents of RRT-TREE-NODEs ofthe tree and returns nil.
  Only for the side effect.
 </p>
-
-
-
-<hr/>
 </div>
-</li></ol>
 </div>
+
 <div id="outline-container-2-4-6" class="outline-4">
 <h4 id="sec-2-4-6"><span class="section-number-4">2.4.6</span> Function: <code>mapc-rrt-tree-node-recursively</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-4-6">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-6-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(mapc-rrt-tree-node-recursively node fn)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(mapc-rrt-tree-node-recursively node fn)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-4-6-2">
+
 <p>
 Mapc over the RRT-TREE-NODEs of the tree and returns nil.
  Only for the side effect.
 </p>
-
-
-
-<hr/>
 </div>
-</li></ol>
 </div>
+
 <div id="outline-container-2-4-7" class="outline-4">
 <h4 id="sec-2-4-7"><span class="section-number-4">2.4.7</span> Function: <code>nnext-branch</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-4-7">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-4-7-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(nnext-branch tree)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(nnext-branch tree)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-4-7-2">
+
 <p>
 Destructively modifies and return an RRT-TREE.  If the
 <i>tree</i> has a finish node, it finds a path from the root to
@@ -700,155 +633,115 @@ the end and then replace the root with the next node in that path.
 Otherwise it choose one child of the root at random and replace the
 root with it. In both cases the new root is orphanized.
 </p>
-
-
-
-<hr/>
-</div>
-</li></ol>
 </div>
 </div>
+</div>
+
 <div id="outline-container-2-5" class="outline-3">
 <h3 id="sec-2-5"><span class="section-number-3">2.5</span> Node manipulation helper</h3>
 <div class="outline-text-3" id="text-2-5">
 </div><div id="outline-container-2-5-1" class="outline-4">
 <h4 id="sec-2-5-1"><span class="section-number-4">2.5.1</span> Function: <code>rrt-node</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-5-1">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-5-1-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(rrt-node content)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(rrt-node content)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-5-1-2">
+
+
 <p>
 Identical to <code>(make-instance 'rrt-tree-node :content content)</code>
 </p>
-
-
-
-<hr/>
 </div>
-</li></ol>
 </div>
 
 <div id="outline-container-2-5-2" class="outline-4">
 <h4 id="sec-2-5-2"><span class="section-number-4">2.5.2</span> Function: <code>adopt-children</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-5-2">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-5-2-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(adopt-children new-parent old-parent)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(adopt-children new-parent old-parent)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-5-2-2">
+
 <p>
 HELPER FUINCTION: removes the children of old-parent and
 the new-parent takes all of them.
 </p>
-
-
-
-<hr/>
 </div>
-</li></ol>
 </div>
+
 <div id="outline-container-2-5-3" class="outline-4">
 <h4 id="sec-2-5-3"><span class="section-number-4">2.5.3</span> Function: <code>connect</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-5-3">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-5-3-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(connect parent child)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(connect parent child)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-5-3-2">
+
 <p>
 connect two nodes as a parent and a child.
 </p>
-
-
-
-<hr/>
 </div>
-</li></ol>
 </div>
+
 <div id="outline-container-2-5-4" class="outline-4">
 <h4 id="sec-2-5-4"><span class="section-number-4">2.5.4</span> Function: <code>disconnect</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-5-4">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-5-4-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(disconnect parent child)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(disconnect parent child)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-5-4-2">
+
 <p>
 disconnect a parent and its child.
 signals CHILD-NOT-FOUND &lt; SIMPLE-CONDITION.
 </p>
-
-
-
-<hr/>
 </div>
-</li></ol>
 </div>
+
 <div id="outline-container-2-5-5" class="outline-4">
 <h4 id="sec-2-5-5"><span class="section-number-4">2.5.5</span> Function: <code>neglect</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-5-5">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-5-5-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(neglect parent)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(neglect parent)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-5-5-2">
+
 <p>
 HELPER FUNCTION: disconnect all children from the
 specified parent
 </p>
-
-
-
-<hr/>
 </div>
-</li></ol>
 </div>
+
 <div id="outline-container-2-5-6" class="outline-4">
 <h4 id="sec-2-5-6"><span class="section-number-4">2.5.6</span> Function: <code>orphanize</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-5-6">
-</div><ol class="org-ol"><li>Syntax<br/><div class="outline-text-5" id="text-2-5-6-1">
 <div class="org-src-container">
 
-<pre class="src src-lisp">(orphanize child)
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(orphanize child)
+</span>
 </pre>
 </div>
-</div>
-</li>
-<li>Description<br/><div class="outline-text-5" id="text-2-5-6-2">
+
 <p>
 HELPER FUNCTION: ensure a node doesn't have a parent
 </p>
+</div>
+</div>
+</div>
+</div>
 
-
-
-<hr/>
-</div>
-</li></ol>
-</div>
-</div>
-</div>
 <div id="outline-container-3" class="outline-2">
 <h2 id="sec-3"><span class="section-number-2">3</span> Copyright</h2>
 <div class="outline-text-2" id="text-3">
@@ -881,7 +774,7 @@ No. 5, pp. 378–400, 2001.
 </div></div>
 <div id="postamble" class="status">
 <p class="author">&#33879;&#32773;: Masataro Asai</p>
-<p class="date">Created: 2013-03-27 水 15:53</p>
+<p class="date">Created: 2013-03-28 木 09:24</p>
 <p class="creator">Generated by <a href="http://orgmode.org">Org</a> mode 8.0-pre in <a href="http://www.gnu.org/software/emacs/">Emacs</a> 23.3.1.</p>
 <p class="xhtml-validation"><a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a></p>
 </div>

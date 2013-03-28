@@ -109,10 +109,10 @@ an instance of it, but rather inherit it. It has three slots and accessors with 
 		 :initarg :root)
    (nodes :accessor nodes)
    (finish-node :type (or null rrt-tree-node)
-		   :documentation ""
-		   :initarg :finish-node
-		   :accessor finish-node
-		   :initform nil)))
+				:documentation ""
+				:initarg :finish-node
+				:accessor finish-node
+				:initform nil)))
 
 (defmethod initialize-instance :after ((tree rrt-tree-mixin)
 									   &rest args
@@ -185,81 +185,112 @@ the arguments should be of types as listed in the following :
 	 (max-nodes 15)
 	 (max-iteration 30)
 	 run-on-node)
-  (iter
-	(with start-node =
-		  (cond
-			((and tree (root tree)) (root tree))
-			(start-v (rrt-node start-v))
-			(t (error "either start-v or tree needs to be specified. ~
-                       tree should have its root node already.")))
-	(with tree = 
-		  (if tree
-			  (reinitialize-instance tree :finish-node nil)
-			  (make-instance tree-class :root start-node)))
-	(generate i
-			  from (count-node tree)
-			  below max-nodes)
-	(for j below max-iteration)
-	(for random-v     = (funcall random-generator))
-	(for nearest-node = (nearest-node random-v tree))
-	(for nearest-v    = (content nearest-node))
-	(for new-v = (funcall new-v-generator nearest-v random-v))
-	(when (funcall edge-prohibited-p nearest-v new-v)
-	  (next-iteration))
-	(funcall-when run-on-node nearest-v new-v)
-	(for new-node = (rrt-node new-v))
-	(connect nearest-node new-node)
-	(insert new-node tree)
-	(when (funcall finish-p new-v)
-	  (setf (finish-node tree) new-node)
-	  (terminate))
-	(next i)
-	(finally
-	 (return (values tree i j))))))
+  (if run-on-node
+	  (iter
+		(with start-node =
+			  (cond
+				((and tree (root tree)) (root tree))
+				(start-v (rrt-node start-v))
+				(t (error "either start-v or tree needs to be specified. ~
+                       tree should have its root node already."))))
+		(with tree = 
+			  (if tree
+				  (reinitialize-instance tree :finish-node nil)
+				  (make-instance tree-class :root start-node)))
+		(generate i
+				  from (count-node tree)
+				  below max-nodes)
+		(for j below max-iteration)
+		(for random-v     = (funcall random-generator))
+		(for nearest-node = (nearest-node random-v tree))
+		(for nearest-v    = (content nearest-node))
+		(for new-v = (funcall new-v-generator nearest-v random-v))
+		(when (funcall edge-prohibited-p nearest-v new-v)
+		  (next-iteration))
+		(funcall run-on-node nearest-v new-v)
+		(for new-node = (rrt-node new-v))
+		(connect nearest-node new-node)
+		(insert new-node tree)
+		(when (funcall finish-p new-v)
+		  (setf (finish-node tree) new-node)
+		  (terminate))
+		(next i)
+		(finally
+		 (return (values tree i j))))
+	  (iter
+		(with start-node =
+			  (cond
+				((and tree (root tree)) (root tree))
+				(start-v (rrt-node start-v))
+				(t (error "either start-v or tree needs to be specified. ~
+                       tree should have its root node already."))))
+		(with tree = 
+			  (if tree
+				  (reinitialize-instance tree :finish-node nil)
+				  (make-instance tree-class :root start-node)))
+		(generate i
+				  from (count-node tree)
+				  below max-nodes)
+		(for j below max-iteration)
+		(for random-v     = (funcall random-generator))
+		(for nearest-node = (nearest-node random-v tree))
+		(for nearest-v    = (content nearest-node))
+		(for new-v = (funcall new-v-generator nearest-v random-v))
+		(when (funcall edge-prohibited-p nearest-v new-v)
+		  (next-iteration))
+		(for new-node = (rrt-node new-v))
+		(connect nearest-node new-node)
+		(insert new-node tree)
+		(when (funcall finish-p new-v)
+		  (setf (finish-node tree) new-node)
+		  (terminate))
+		(next i)
+		(finally
+		 (return (values tree i j))))))
 
-@export @doc "Returns the nodes of the computed path in a list, from
+  @export @doc "Returns the nodes of the computed path in a list, from
 the root to the end. Returns nil if the path was not found. The list
 contains the root of the tree."
-(defun result-path-nodes (tree)
-  @type rrt-tree-mixin tree
-  (iter (with results = nil)
-		(for node
-			 initially (finish-node tree)
-			 then (parent node))
-		(while node)
-		(push node results)
-		(finally (return results))))
+  (defun result-path-nodes (tree)
+	@type rrt-tree-mixin tree
+	(iter (with results = nil)
+		  (for node
+			   initially (finish-node tree)
+			   then (parent node))
+		  (while node)
+		  (push node results)
+		  (finally (return results))))
 
-@export
-@doc "Returns a list of C-space points of the computed paths
+  @export
+  @doc "Returns a list of C-space points of the computed paths
 from the root to the end.  Returns nil if the path was not found. The
 list contains the root of the tree."
-(defun result-path (tree)
-  @type rrt-tree-mixin tree
-  (mapcar #'content (result-path-nodes tree)))
+  (defun result-path (tree)
+	@type rrt-tree-mixin tree
+	(mapcar #'content (result-path-nodes tree)))
 
-;; @export
-;; @doc "returns a newly created `rrt-tree'. 
-;; it selects the branch with the computed path
-;; out of the branches directly connected to the root and
-;; reassignes the branch to the root."
-;; (defun next-branch (tree)
-;;   @type rrt-tree-mixin tree
-;;   (new (class-of tree)
-;; 	   :root (aif (result-path-nodes tree)
-;; 				  (second it)
-;; 				  (random-elt (children (root tree))))))
+  ;; @export
+  ;; @doc "returns a newly created `rrt-tree'. 
+  ;; it selects the branch with the computed path
+  ;; out of the branches directly connected to the root and
+  ;; reassignes the branch to the root."
+  ;; (defun next-branch (tree)
+  ;;   @type rrt-tree-mixin tree
+  ;;   (new (class-of tree)
+  ;; 	   :root (aif (result-path-nodes tree)
+  ;; 				  (second it)
+  ;; 				  (random-elt (children (root tree))))))
 
-@export
-@doc "Destructively modifies and return an RRT-TREE.  If the
+  @export
+  @doc "Destructively modifies and return an RRT-TREE.  If the
 `tree' has a finish node, it finds a path from the root to
 the end and then replace the root with the next node in that path.
 Otherwise it choose one child of the root at random and replace the
 root with it. In both cases the new root is orphanized."
-(defun nnext-branch (tree)
-  @type rrt-tree-mixin tree
-  (let* ((new-root (aif (result-path-nodes tree)
-						(second it)
-						(random-elt (children (root tree))))))
-	(reinitialize-instance tree :root new-root)
-	tree))
+  (defun nnext-branch (tree)
+	@type rrt-tree-mixin tree
+	(let* ((new-root (aif (result-path-nodes tree)
+						  (second it)
+						  (random-elt (children (root tree))))))
+	  (reinitialize-instance tree :root new-root)
+	  tree))
