@@ -5,7 +5,7 @@
 
 * CL-RRT - Common Lisp implementation of RRT (Rapidily exploring Random Tree)
 
-[[file:test.png]]
+[[https://raw.github.com/guicho271828/cl-rrt/master/test.png]]
 
 RRT is a fast probabilistic multidimentional path-plannning algorithm
 introduced by S.M.LaValle [fn:paper]. It now has a widespread use in robotics
