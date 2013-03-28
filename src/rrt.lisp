@@ -107,7 +107,6 @@ an instance of it, but rather inherit it. It has three slots and accessors with 
   ((root :type (or null rrt-tree-node)
 		 :accessor root
 		 :initarg :root)
-   (nodes :accessor nodes)
    (finish-node :type (or null rrt-tree-node)
 				:documentation ""
 				:initarg :finish-node

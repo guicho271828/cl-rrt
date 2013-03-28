@@ -55,7 +55,28 @@ Also, it depends on the following libraries:
 + Masataro Asai (guicho2.71828@gmail.com)
 + Univ. Tokyo -> Grad. school of Tokyo University
 
-* API
+* Concepts and API
+
+C-space (configuration space) is a multidimentional space which
+represents the state of a robot. For instance, since a human arm has 6
+degree of freedom, the C-space also has at least 6
+dimension. Additionally, the C-space is allowed to have the
+differencial factor of each coordinate value. Therefore the C-space
+might have at most 18 degree of freedom for the human arm because each
+coordinate has its velocity and the accelaration.
+For further explanation, read the Lavalle's paper.
+
+Now, let /V/ as a type variable. We use this V to store the C-space
+coordinate.
+
++ /V/ :: a vector class which represents a point in C-space.
+           (configuration-space-distance V V) should return a number.
++ (node /V/) :: an rrt-tree-node instance whose /content/ slot is V.
+                holonomic and non-holonomic parameters like velocity
+                and acceralation should be stored in V.
+
+I use these expression above as a type specifier in the following
+description and specification.
 
 ** Core Interfaces
 *** Standard Class: =rrt-tree-mixin= 				      :class:
@@ -64,14 +85,12 @@ instance of it, but rather inherit it. It has three slots and
 accessors with the same names:
 
 + root :: the root node of the tree. of type rrt-tree-node.
-+ nodes :: an abstract slot which should be redefined in the inherited
-           class.  stores a container of the entire nodes.
 + finish-node :: a slot which contains the last node of the computed
                  path.  It is bound to nil, it means the previous
                  search has failed to find a path which satisfies the
                  goal condition.
 
-*** Class: =rrt-tree-node=					      :class:
+*** Standard Class: =rrt-tree-node= 				      :class:
 
 Node class of Random Tree. 
 
@@ -81,7 +100,6 @@ Node class of Random Tree.
   [[cofiguration-space-distance]]. All holonomic and non-holonomic values
   such as position, velocity and accelaration should be stored in
   the instance in /content/.
-
 
 *** Standard Generic Function: =configuration-space-distance= 	   :function:
 #+BEGIN_SRC lisp
@@ -99,39 +117,28 @@ implement the desired method on its own.
 
 This generic function should implement a method
 which finds the nearest node in a /tree/ to the /target/.
-/target/ is an instance of holonomic point class.
+/target/ is an instance of point class.
 
 *** Function: =rrt-search=					   :function:
 
 #+BEGIN_SRC lisp
-(rrt-search start-v
-            random-generator new-v-generator
+(rrt-search random-generator new-v-generator
             edge-prohibited-p finish-p
-            &key tree (tree-class 'rrt-tree-tree) (max-nodes 15)
+            &key start-v tree (tree-class 'rrt-tree-tree) (max-nodes 15)
             (max-iteration 30) run-on-node)
 ;; --> tree, num-nodes, iteration
 #+END_SRC
 
 RRT-search function.
-let /V/ as a type variable.
 
-+ /V/ :: a vector class which represents a point in C-space.
-           (configuration-space-distance V V) should return a number.
-+ (node /V/) :: an rrt-tree-node instance whose /content/ slot is V.
-                holonomic and non-holonomic parameters like velocity
-                and acceralation should be stored in V.
-
-I use these expression above as a type specifier in the following
-description and specification.
-
-+ start-v :: /V/ -- A starting point of RRT searching in a C-space. It
-             will be stored in the root node of the /tree/ if no
-             /tree/ is specified in the *&key* arguments. 
 + random-generator :: (no args) -> /V/ random
 + new-v-generator ::  /V/ nearest, /V/ random -> /V/ new
 + edge-prohibited-p :: /V/ nearest, /V/ new -> /Bool/ result
 + finish-p :: /V/ new -> /Bool/ result
 
++ start-v :: /V/ -- A starting point of RRT searching in a C-space. It
+             will be stored in the root node of the /tree/ if no
+             /tree/ is specified in the *&key* arguments. 
 + tree :: A tree to be used as a prototype of the search.  It is
           going to be destructively modified in the search.  If not
           specified, it internally creates an instance of

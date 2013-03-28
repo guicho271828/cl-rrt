@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
 <title>CL-RRT</title>
-<!-- 2013-03-28 木 09:24 -->
+<!-- 2013-03-28 木 09:54 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="generator" content="Org-mode"/>
 <meta name="author" content="Masataro Asai"/>
@@ -142,7 +142,7 @@ for the JavaScript code in this tag.
 <div class="outline-text-2" id="text-1">
 
 <div class="figure">
-<p><img src="test.png"  alt="test.png"/></p>
+<p><img src="https://raw.github.com/guicho271828/cl-rrt/master/test.png"  alt="test.png"/></p>
 </div>
 
 <p>
@@ -226,9 +226,41 @@ the dependencies
 </div>
 </div>
 <div id="outline-container-2" class="outline-2">
-<h2 id="sec-2"><span class="section-number-2">2</span> API</h2>
+<h2 id="sec-2"><span class="section-number-2">2</span> Concepts and API</h2>
 <div class="outline-text-2" id="text-2">
-</div><div id="outline-container-2-1" class="outline-3">
+<p>
+C-space (configuration space) is a multidimentional space which
+represents the state of a robot. For instance, since a human arm has 6
+degree of freedom, the C-space also has at least 6
+dimension. Additionally, the C-space is allowed to have the
+differencial factor of each coordinate value. Therefore the C-space
+might have at most 18 degree of freedom for the human arm because each
+coordinate has its velocity and the accelaration.
+For further explanation, read the Lavalle's paper.
+</p>
+
+<p>
+Now, let <i>V</i> as a type variable. We use this V to store the C-space
+coordinate.
+</p>
+
+<dl class="org-dl">
+<dt> <i>V</i> </dt><dd>a vector class which represents a point in C-space.
+(configuration-space-distance V V) should return a number.
+</dd>
+<dt> (node <i>V</i>) </dt><dd>an rrt-tree-node instance whose <i>content</i> slot is V.
+holonomic and non-holonomic parameters like velocity
+and acceralation should be stored in V.
+</dd>
+</dl>
+
+<p>
+I use these expression above as a type specifier in the following
+description and specification.
+</p>
+</div>
+
+<div id="outline-container-2-1" class="outline-3">
 <h3 id="sec-2-1"><span class="section-number-3">2.1</span> Core Interfaces</h3>
 <div class="outline-text-3" id="text-2-1">
 </div><div id="outline-container-2-1-1" class="outline-4">
@@ -243,9 +275,6 @@ accessors with the same names:
 <dl class="org-dl">
 <dt> root </dt><dd>the root node of the tree. of type rrt-tree-node.
 </dd>
-<dt> nodes </dt><dd>an abstract slot which should be redefined in the inherited
-class.  stores a container of the entire nodes.
-</dd>
 <dt> finish-node </dt><dd>a slot which contains the last node of the computed
 path.  It is bound to nil, it means the previous
 search has failed to find a path which satisfies the
@@ -255,7 +284,7 @@ goal condition.
 </div>
 </div>
 <div id="outline-container-2-1-2" class="outline-4">
-<h4 id="sec-2-1-2"><span class="section-number-4">2.1.2</span> Class: <code>rrt-tree-node</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="class">class</span></span></h4>
+<h4 id="sec-2-1-2"><span class="section-number-4">2.1.2</span> Standard Class: <code>rrt-tree-node</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="class">class</span></span></h4>
 <div class="outline-text-4" id="text-2-1-2">
 <p>
 Node class of Random Tree. 
@@ -274,7 +303,6 @@ the instance in <i>content</i>.
 </dl>
 </div>
 </div>
-
 <div id="outline-container-2-1-3" class="outline-4">
 <h4 id="sec-2-1-3"><span class="section-number-4">2.1.3</span> Standard Generic Function: <code>configuration-space-distance</code>&#xa0;&#xa0;&#xa0;<span class="tag"><span class="function">function</span></span></h4>
 <div class="outline-text-4" id="text-2-1-3">
@@ -305,7 +333,7 @@ implement the desired method on its own.
 <p>
 This generic function should implement a method
 which finds the nearest node in a <i>tree</i> to the <i>target</i>.
-<i>target</i> is an instance of holonomic point class.
+<i>target</i> is an instance of point class.
 </p>
 </div>
 </div>
@@ -314,10 +342,9 @@ which finds the nearest node in a <i>tree</i> to the <i>target</i>.
 <div class="outline-text-4" id="text-2-1-5">
 <div class="org-src-container">
 
-<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(rrt-search start-v
-            random-generator new-v-generator
+<pre class="src src-lisp"><span style="background-color: #d3d3d3;">(rrt-search random-generator new-v-generator
             edge-prohibited-p finish-p
-            </span><span style="color: #228b22; background-color: #d3d3d3;">&amp;key</span><span style="background-color: #d3d3d3;"> tree (tree-class 'rrt-tree-tree) (max-nodes 15)
+            </span><span style="color: #228b22; background-color: #d3d3d3;">&amp;key</span><span style="background-color: #d3d3d3;"> start-v tree (tree-class 'rrt-tree-tree) (max-nodes 15)
             (max-iteration 30) run-on-node)
 </span><span style="color: #b22222; background-color: #d3d3d3;">;; </span><span style="color: #b22222; background-color: #d3d3d3;">--&gt; tree, num-nodes, iteration</span><span style="background-color: #d3d3d3;">
 </span>
@@ -326,29 +353,9 @@ which finds the nearest node in a <i>tree</i> to the <i>target</i>.
 
 <p>
 RRT-search function.
-let <i>V</i> as a type variable.
 </p>
 
 <dl class="org-dl">
-<dt> <i>V</i> </dt><dd>a vector class which represents a point in C-space.
-(configuration-space-distance V V) should return a number.
-</dd>
-<dt> (node <i>V</i>) </dt><dd>an rrt-tree-node instance whose <i>content</i> slot is V.
-holonomic and non-holonomic parameters like velocity
-and acceralation should be stored in V.
-</dd>
-</dl>
-
-<p>
-I use these expression above as a type specifier in the following
-description and specification.
-</p>
-
-<dl class="org-dl">
-<dt> start-v </dt><dd><i>V</i> &#x2013; A starting point of RRT searching in a C-space. It
-will be stored in the root node of the <i>tree</i> if no
-<i>tree</i> is specified in the <b>&amp;key</b> arguments. 
-</dd>
 <dt> random-generator </dt><dd>(no args) -&gt; <i>V</i> random
 </dd>
 <dt> new-v-generator </dt><dd><i>V</i> nearest, <i>V</i> random -&gt; <i>V</i> new
@@ -358,6 +365,10 @@ will be stored in the root node of the <i>tree</i> if no
 <dt> finish-p </dt><dd><i>V</i> new -&gt; <i>Bool</i> result
 </dd>
 
+<dt> start-v </dt><dd><i>V</i> &#x2013; A starting point of RRT searching in a C-space. It
+will be stored in the root node of the <i>tree</i> if no
+<i>tree</i> is specified in the <b>&amp;key</b> arguments. 
+</dd>
 <dt> tree </dt><dd>A tree to be used as a prototype of the search.  It is
 going to be destructively modified in the search.  If not
 specified, it internally creates an instance of
@@ -774,7 +785,7 @@ No. 5, pp. 378–400, 2001.
 </div></div>
 <div id="postamble" class="status">
 <p class="author">&#33879;&#32773;: Masataro Asai</p>
-<p class="date">Created: 2013-03-28 木 09:24</p>
+<p class="date">Created: 2013-03-28 木 09:54</p>
 <p class="creator">Generated by <a href="http://orgmode.org">Org</a> mode 8.0-pre in <a href="http://www.gnu.org/software/emacs/">Emacs</a> 23.3.1.</p>
 <p class="xhtml-validation"><a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a></p>
 </div>
