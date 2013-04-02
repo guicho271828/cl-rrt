@@ -28,6 +28,7 @@ No. 5, pp. 378–400, 2001.
 This library is at least tested on implementation listed below:
 
 + SBCL 1.1.2 on X86-64 Linux  3.2.0-39-generic (author's environment)
++ Clozure Common Lisp Version 1.9-r15757 on X86-64 Linux  3.2.0-39-generic (author's environment)
 
 Also, it depends on the following libraries:
 
