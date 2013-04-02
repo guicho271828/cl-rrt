@@ -5,6 +5,7 @@
 
 * CL-RRT - Common Lisp implementation of RRT (Rapidily exploring Random Tree)
 
+#+caption: A test result of a motion planner from the start(red) to the end (blue). The path is avoiding the randomly generated obstacles.
 [[https://raw.github.com/guicho271828/cl-rrt/master/test.png]]
 
 RRT is a fast probabilistic multidimentional path-plannning algorithm
