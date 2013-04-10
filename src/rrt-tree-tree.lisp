@@ -35,7 +35,7 @@ seaches from the root in nearest-search."
 		   (setf best-node node
 				 best-content content
 				 best-distance dist)))))
-	(values best-node best-distance)))
+	(values best-node best-distance best-content)))
 
 (defmethod nodes ((tree rrt-tree-tree))
   (let (leafs)
