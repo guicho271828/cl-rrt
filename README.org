@@ -291,9 +291,11 @@ contains the root of the tree.
 #+BEGIN_SRC lisp
 (map-rrt-tree-content-recursively node fn)
 #+END_SRC
+: (node V), ((node V) -> t) -> (list t)
 
-Map over the contents of RRT-TREE-NODEs of the tree and
- return each result in a nested tree 
+Walk over the child nodes of /node/ recursively,
+ call the function with the content of the node and
+ return each result in a nested list-based tree 
 with the same structure as the original random-tree.
 
 *** Function: =map-rrt-tree-node-recursively=			   :function:
@@ -301,9 +303,11 @@ with the same structure as the original random-tree.
 #+BEGIN_SRC lisp
 (map-rrt-tree-node-recursively node fn)
 #+END_SRC
+: (node V), (V -> t) -> (list t)
 
-Map over the RRT-TREE-NODEs of the tree and
- return the results in a nested cons tree 
+Walk over the child nodes of /node/ recursively and
+ call the function with the node and
+ return each result in a nested list-based tree 
 with the same structure as that of the original random-tree.
 
 *** Function: =mapc-rrt-tree-content-recursively=		   :function:
@@ -312,7 +316,7 @@ with the same structure as that of the original random-tree.
 (mapc-rrt-tree-content-recursively node fn)
 #+END_SRC
 
-Mapc over the contents of RRT-TREE-NODEs ofthe tree and returns nil.
+Same as map-rrt-tree-content-recursively but returns nil.
  Only for the side effect.
 
 *** Function: =mapc-rrt-tree-node-recursively=			   :function:
@@ -321,7 +325,7 @@ Mapc over the contents of RRT-TREE-NODEs ofthe tree and returns nil.
 (mapc-rrt-tree-node-recursively node fn)
 #+END_SRC
 
-Mapc over the RRT-TREE-NODEs of the tree and returns nil.
+Same as map-rrt-tree-node-recursively but returns nil.
  Only for the side effect.
 
 *** Function: =nnext-branch=					   :function:
