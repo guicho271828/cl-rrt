@@ -63,6 +63,8 @@ Also, it depends on the following libraries:
 
 * Concepts and API
 
+The key concept in RRT is C-space and State-space.
+
 C-space (configuration space) is a multidimentional space which
 represents the state of a robot. For example, a human arm has 6
 degrees of freedom and its C-space also has at least 6
@@ -71,13 +73,21 @@ C-space is allowed to have the differencial factor of each coordinate
 value and each coordinate has its velocity and the accelaration.  For
 the further explanation, please take a look at Lavalle's paper.
 
+State-space is also a multidimentional space. It contains all the
+values in C-space *and also* the controls of the robot. A control mean
+the output of the robot and it is different from the speed and the
+accelaration. For example, if you implement a car AI, the actual acceleration would
+not nessesarily match the output of the engine because there is a
+drift between the tire and the ground.
+
 Now, let /V/ as a type variable.
 
-+ /V/ :: a vector class which represents a point in C-space.
++ /V/ :: a vector class which represents a point in State-space.
          (configuration-space-distance V V) should return a number.
 	 The instance of this type is called as a /content/ of a node.
          Holonomic and non-holonomic parameters like velocity
-         and acceralation should be stored in V.
+         and acceralation should be stored in V. Also, the controls
+         of the robot should be stored here.
 + (node /V/) :: an rrt-tree-node instance whose slot /content/ is V.
 
 I use these expression above as a type specifier in the following
@@ -108,7 +118,7 @@ Node class of Random Tree.
 
 + parent :: Parent node. 
 + children :: a list of child nodes.
-+ content :: Stores C-space point data which should support a method
++ content :: Stores State-space point data which should support a method
   [[cofiguration-space-distance]]. All holonomic and non-holonomic values
   such as position, velocity and accelaration should be stored in
   the instance in /content/.
@@ -120,7 +130,9 @@ Node class of Random Tree.
 : V, V -> NUMBER
 This generic function should provide a method to measure the distance
 between two points in C-space (configuration space). Users should
-implement the desired method on its own.
+implement the desired method on its own. The content /V/ also has
+the control values (in State-space), but they shouldn't be used for
+the distance calculation.
 
 *** Generic Function: =nearest-node= 				   :function:
 #+BEGIN_SRC lisp
@@ -151,12 +163,13 @@ RRT-search function.
 
 + random-generator :: (no args) -> /V/ random
 + new-v-generator ::  /V/ nearest, /V/ random -> /V/ new
+     This function provides a way to 
 + edge-prohibited-p :: /V/ nearest, /V/ new -> /Bool/ result
 + finish-p :: /V/ new -> /Bool/ result
 
-+ start-v :: /V/ -- A starting point of RRT searching in a C-space. It
-             will be stored in the root node of the /tree/ if no
-             /tree/ is specified in the *&key* arguments. 
++ start-v :: /V/ -- A starting point of RRT searching in a
+             State-space. It will be stored in the root node of the
+             /tree/ if no /tree/ is specified in the *&key* arguments.
 + tree :: A tree to be used as a prototype of the search.  It is
           going to be destructively modified in the search.  If not
           specified, it internally creates an instance of
@@ -272,7 +285,7 @@ not its parent.
 #+END_SRC
 : TREE -> (list V)
 
-Returns a list of C-space points of the computed paths
+Returns a list of State-space points of the computed paths
 from the root to the end.  Returns nil if the path was not found. The
 list contains the root of the tree.
 
@@ -341,6 +354,11 @@ Destructively modifies and return an RRT-TREE.  If the
 the end and then replace the root with the next node in that path.
 Otherwise it choose one child of the root at random and replace the
 root with it. In both cases the new root is orphanized.
+
+This method is useful when you want to reuse the tree in real-time
+robot systems. With this function, you are able to cut the root-most
+edge when the actual robot has already reached the next State-space
+ and the root node is no longer needed.
 
 ** Node manipulation helper
 *** Function: =rrt-node=					   :function:
