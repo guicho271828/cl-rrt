@@ -93,7 +93,7 @@ Now, let /V/ as a type variable.
 I use these expression above as a type specifier in the following
 description and specification.
 
-    *note* : During the provide the protocol, I chosed not to 
+    *note* : In designing the protocol, I chosed not to 
     implement V as a mixin. The reason is because users cannot
     implement V as =ARRAY= or =VECTOR= in that case,
     which are defined as a subclass
