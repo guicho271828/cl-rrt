@@ -159,7 +159,7 @@ A leaf is a node with no children."
 @doc "TREE -> FIXNUM
 This generic function should provide a method
 to count the number of leafs."
-(defgeneric count-node (tree))
+(defgeneric count-nodes (tree))
 
 @export
 @doc "V, V -> NUMBER
@@ -217,7 +217,7 @@ the arguments should be of types as listed in the following :
 				  (reinitialize-instance tree :finish-node nil)
 				  (make-instance tree-class :root start-node)))
 		(generate i
-				  from (count-node tree)
+				  from (count-nodes tree)
 				  below max-nodes)
 		(for j below max-iteration)
 		(for random-v     = (funcall random-generator))
@@ -248,7 +248,7 @@ the arguments should be of types as listed in the following :
 				  (reinitialize-instance tree :finish-node nil)
 				  (make-instance tree-class :root start-node)))
 		(generate i
-				  from (count-node tree)
+				  from (count-nodes tree)
 				  below max-nodes)
 		(for j below max-iteration)
 		(for random-v     = (funcall random-generator))

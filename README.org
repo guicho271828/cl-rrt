@@ -30,7 +30,7 @@ No. 5, pp. 378–400, 2001.
 
 ** Dependencies
 
-This library is at least tested on implementation listed below:
+This library is at least tested on implementations listed below:
 
 + SBCL 1.1.2 on X86-64 Linux  3.2.0-39-generic (author's environment)
 + Clozure Common Lisp Version 1.9-r15757 on X86-64 Linux  3.2.0-39-generic (author's environment)
@@ -64,36 +64,35 @@ Also, it depends on the following libraries:
 * Concepts and API
 
 C-space (configuration space) is a multidimentional space which
-represents the state of a robot. For instance, since a human arm has 6
-degree of freedom, the C-space also has at least 6
-dimension. Additionally, the C-space is allowed to have the
-differencial factor of each coordinate value. Therefore the C-space
-might have at most 18 degree of freedom for the human arm because each
-coordinate has its velocity and the accelaration.
-For further explanation, read the Lavalle's paper.
+represents the state of a robot. For example, a human arm has 6
+degrees of freedom and its C-space also has at least 6
+dimension. Additionally, the dimension can be up to 18 because the
+C-space is allowed to have the differencial factor of each coordinate
+value and each coordinate has its velocity and the accelaration.  For
+the further explanation, please take a look at Lavalle's paper.
 
-Now, let /V/ as a type variable. We use this V to store the C-space
-coordinate.
+Now, let /V/ as a type variable.
 
 + /V/ :: a vector class which represents a point in C-space.
          (configuration-space-distance V V) should return a number.
 	 The instance of this type is called as a /content/ of a node.
-         holonomic and non-holonomic parameters like velocity
+         Holonomic and non-holonomic parameters like velocity
          and acceralation should be stored in V.
 + (node /V/) :: an rrt-tree-node instance whose slot /content/ is V.
 
 I use these expression above as a type specifier in the following
 description and specification.
 
-    *note* : The reason I did not implemented V as a mixin in order
-    to provide the protocol is that, in that case users cannot
-    implement V as =ARRAY= or =VECTOR=, which are defined as a subclass
+    *note* : During the provide the protocol, I chosed not to 
+    implement V as a mixin. The reason is because users cannot
+    implement V as =ARRAY= or =VECTOR= in that case,
+    which are defined as a subclass
     of =BUILT-IN-CLASS= and throws error when they are specified as a
     superclass of other classes.
 
 ** Core Interfaces
 *** Class: =rrt-tree-mixin= 					      :class:
-The interface mixin class of random tree. User do not create an
+The interface mixin class of random tree. Users do not create an
 instance of it, but rather inherit it. It has three slots and
 accessors with the same names:
 
@@ -192,58 +191,22 @@ to accumulate all leafs into a list.
 A leaf is a node with no children.
 *** Class: =rrt-tree-list= 				      :class:
 
-**** Inheritance
-- Parent classes:
-   [[class rrt-tree-mixin][rrt-tree-mixin]]
-- Precedence list:
-    [[class rrt-tree-list][rrt-tree-list]], [[class rrt-tree-mixin][rrt-tree
-    mixin]], [[class standard-object][standard-object]], [[class slot-object][slot
-    object]], [[class t][t]]
-- Direct subclasses:
-    None.
-
-**** Description
+- Parent classes:  [[class rrt-tree-mixin][rrt-tree-mixin]]
 
 an rrt-tree implementation which uses
  a simple linear search method for nearest-search.
 
-**** Direct Slots
-
-# link target 2: <<nodes>>
-# link target: <<slot nodes>>
-
-***** Slot: =nodes=						       :slot:
-
-- Value type: =list=
-- Initial value: =NIL=
-- Initargs: none
-- Allocation: instance
-
-Stores the list of nodes. 
-
 *** Class: =rrt-tree-tree= 					      :class:
 
-**** Inheritance
-
-- Parent classes:
-    [[class rrt-tree-mixin][rrt-tree-mixin]]
-- Precedence list:
-    [[class rrt-tree-tree][rrt-tree-tree]], [[class rrt-tree-mixin][rrt-tree
-    mixin]], [[class standard-object][standard-object]], [[class slot-object][slot
-    object]], [[class t][t]]
-- Direct subclasses:
-    None.
-
-**** Description
+- Parent classes:   [[class rrt-tree-mixin][rrt-tree-mixin]]
 
 An rrt-tree implementation which 
 does breadth-first search in nearest-search.
-The slot /nodes/ are never used. 
 
-*** Generic Function: =count-node=
+*** Generic Function: =count-nodes=
 
 #+BEGIN_SRC lisp
-(count-node tree)
+(count-nodes tree)
 #+END_SRC
 
 : TREE -> FIXNUM
@@ -265,7 +228,7 @@ A leaf is a node with no children.
 (insert content tree)
 #+END_SRC
 : V, TREE -> TREE
-This generic function is allowed provide 
+This generic function provides
 an additional procedure during the insertion of a `content' to the `tree'.
 The code in this method does something other than the linking of the
 parent and child nodes, and optimizes nearest-search. For example, 

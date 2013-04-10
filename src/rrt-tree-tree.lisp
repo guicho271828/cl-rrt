@@ -9,7 +9,7 @@ seaches from the root in nearest-search."
 
 (defmethod print-object ((tree rrt-tree-tree) s)
   (print-unreadable-object (tree s :type t)
-	(format s "NODES: ~a" (count-node tree))))
+	(format s "NODES: ~a" (count-nodes tree))))
 
 (defmethod reinitialize-instance :around ((tree rrt-tree-tree) &rest args)
   @ignore args
@@ -54,7 +54,7 @@ seaches from the root in nearest-search."
 		 (push node leafs))))
 	leafs))
 
-(defmethod count-node ((tree rrt-tree-tree))
+(defmethod count-nodes ((tree rrt-tree-tree))
   (let ((count 0))
 	(mapc-rrt-tree-node-recursively
 	 (root tree)

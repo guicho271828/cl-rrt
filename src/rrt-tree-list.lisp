@@ -10,7 +10,7 @@
 
 (defmethod print-object ((tree rrt-tree-list) s)
   (print-unreadable-object (tree s :type t)
-	(format s "NODES: ~a" (count-node tree))))
+	(format s "NODES: ~a" (count-nodes tree))))
 
 (defmethod reinitialize-instance :around ((tree rrt-tree-list) &rest args)
   @ignore args
@@ -46,5 +46,5 @@
 (defmethod leafs ((tree rrt-tree-list))
   (remove-if #'children (nodes tree)))
 
-(defmethod count-node ((tree rrt-tree-list))
+(defmethod count-nodes ((tree rrt-tree-list))
   (length (nodes tree)))

@@ -142,7 +142,36 @@
   (draw-point *start*)
   (set-rgb-fill 0 0 1)
   (draw-point *goal*)
-  (save-png #.(asdf:system-relative-pathname :cl-rrt-test "test.png")))
+  (save-png #.(asdf:system-relative-pathname
+			   :cl-rrt-test
+			   "test-rrt-tree-tree.png")))
+
+(with-canvas (:width *xmax* :height *ymax*)
+  (iter (while (some (curry #'in-obstacle *goal*) *obstacles*))
+		(setf *goal* (random-point)))
+  (iter (while (some (curry #'in-obstacle *start*) *obstacles*))
+		(setf *start* (random-point)))
+  (ok (rrt-search #'random-point
+				  #'new-v
+				  #'touch-obstacles
+				  #'finish-p
+				  :start-v *start*
+				  :tree-class 'rrt-tree-list
+				  :max-nodes MOST-POSITIVE-FIXNUM
+				  :max-iteration 500
+				  :run-on-node (lambda (nearest new)
+								 (draw-edge nearest new)
+								 (draw-point new))))
+  
+  (iter (for obs in *obstacles*)
+		(draw-obst obs))
+  (set-rgb-fill 1 0 0)
+  (draw-point *start*)
+  (set-rgb-fill 0 0 1)
+  (draw-point *goal*)
+  (save-png #.(asdf:system-relative-pathname
+			   :cl-rrt-test
+			   "test-rrt-tree-list.png")))
 
 ;; blah blah blah.
 
