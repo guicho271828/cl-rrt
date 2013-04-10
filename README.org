@@ -270,7 +270,7 @@ not its parent.
 #+BEGIN_SRC lisp
 (result-path tree)
 #+END_SRC
-: TREE -> (list (node V))
+: TREE -> (list V)
 
 Returns a list of C-space points of the computed paths
 from the root to the end.  Returns nil if the path was not found. The
@@ -281,7 +281,7 @@ list contains the root of the tree.
 #+BEGIN_SRC lisp
 (result-path-nodes tree)
 #+END_SRC
-: TREE -> (list V)
+: TREE -> (list (node V))
 Returns the nodes of the computed path in a list, from
 the root to the end. Returns nil if the path was not found. The list
 contains the root of the tree.
