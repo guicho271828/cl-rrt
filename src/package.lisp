@@ -1,5 +1,6 @@
 (in-package :cl-user)
 (defpackage cl-rrt
+  (:nicknames :rrt)
   (:use :cl
 		:annot
 		:annot.class

@@ -6,7 +6,7 @@
 @doc "an rrt-tree implementation which uses
  a simple linear search method for nearest-search."
 (defclass rrt-tree-list (rrt-tree-mixin)
-  ((nodes :type list :initform nil)))
+  ((nodes :type list :accessor nodes :initform nil)))
 
 (defmethod print-object ((tree rrt-tree-list) s)
   (print-unreadable-object (tree s :type t)
@@ -35,9 +35,10 @@
   (iter
 	(for node in lst)
 	(for content = (content node))
-	(finding node minimizing
-			 (configuration-space-distance
-			  content target-content))))
+	(for distance = (configuration-space-distance
+					 content target-content))
+	(finding (values node distance content)
+			 minimizing distance)))
 
 (defmethod insert (v (tree rrt-tree-list))
   (push v (nodes tree)))

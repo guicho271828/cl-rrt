@@ -98,8 +98,6 @@ with the same structure as the original random-tree."
 an instance of it, but rather inherit it. It has three slots and accessors with the same names:
 
 + root : the root node of the tree. of type rrt-tree-node.
-+ nodes : an abstract slot which should be redefined in the inherited class.
-   stores a container of the entire nodes.
 + finish : a slot which contains the last node of the computed path.
    It is bound to nil, it means the previous search has failed to find
    a path which satisfies the goal condition."
@@ -120,27 +118,52 @@ an instance of it, but rather inherit it. It has three slots and accessors with 
   (insert root tree))
 
 @export
-@doc "This generic function should implement a method
-which finds the nearest node in a `tree' to the `target'."
+@doc "V, tree -> (node V), NUMBER, V
+
+This generic function should implement a method
+which finds the nearest node in a `tree' to the `target'.
+It returns multiple-values.
+
+1. The first return value should be the nearest node.
+2. The second value should be the distance between the target 
+and the nearest node.
+3. The third value should be the content of the node."
 (defgeneric nearest-node (target tree))
 
 @export
-@doc "This generic function should provide a method
- to insert a `content' to the `tree'."
+@doc "V, TREE -> TREE
+This generic function is allowed provide 
+an additional procedure during the insertion of a `content' to the `tree'.
+The code in this method does something other than the linking of the
+parent and child nodes, and optimizes nearest-search. For example, 
+if you want to use B-tree for the nearest search,
+ here you can add codes for inserting a content into a B-tree.
+Always returns `tree' as a result of :around method of rrt-tree-mixin."
 (defgeneric insert (content tree))
 
+(defmethod insert :around (v (tree rrt-tree-mixin))
+  (call-next-method)
+  tree)
+(defmethod insert (v (tree rrt-tree-mixin))
+  ;; do nothing.
+  )
+
 @export
-@doc "This generic function should provide a method
-to accumulate all leafs into a list."
+@doc "TREE -> (list (node V))
+This generic function should provide a method
+to accumulate all leafs into a list.
+A leaf is a node with no children."
 (defgeneric leafs (tree))
 
 @export
-@doc "This generic function should provide a method
+@doc "TREE -> FIXNUM
+This generic function should provide a method
 to count the number of leafs."
 (defgeneric count-node (tree))
 
 @export
-@doc "This generic function should provide a method
+@doc "V, V -> NUMBER
+This generic function should provide a method
 to measure the distance between two points in C-space
  (configuration space)."
 (defgeneric configuration-space-distance (point1 point2))
@@ -168,9 +191,6 @@ the arguments should be of types as listed in the following :
 + finish-p: V -> bool ; new -> result
 + run-on-node: V, V -> t ; nearest, new ->
 
-+ container-generator: (no args) -> (container (node V))
-+ container-insert: V, (container (node V)) -> (container (node V))
-+ container-nearest-search: V, (container (node V)) -> V
 "
 (defun rrt-search
 	(random-generator
@@ -247,49 +267,52 @@ the arguments should be of types as listed in the following :
 		(finally
 		 (return (values tree i j))))))
 
-  @export @doc "Returns the nodes of the computed path in a list, from
+@export @doc "TREE -> (list V)
+Returns the nodes of the computed path in a list, from
 the root to the end. Returns nil if the path was not found. The list
 contains the root of the tree."
-  (defun result-path-nodes (tree)
-	@type rrt-tree-mixin tree
-	(iter (with results = nil)
-		  (for node
-			   initially (finish-node tree)
-			   then (parent node))
-		  (while node)
-		  (push node results)
-		  (finally (return results))))
+(defun result-path-nodes (tree)
+  @type rrt-tree-mixin tree
+  (iter (with results = nil)
+		(for node
+			 initially (finish-node tree)
+			 then (parent node))
+		(while node)
+		(push node results)
+		(finally (return results))))
 
-  @export
-  @doc "Returns a list of C-space points of the computed paths
+@export
+@doc "TREE -> (list (node V))
+Returns a list of C-space points of the computed paths
 from the root to the end.  Returns nil if the path was not found. The
 list contains the root of the tree."
-  (defun result-path (tree)
-	@type rrt-tree-mixin tree
-	(mapcar #'content (result-path-nodes tree)))
+(defun result-path (tree)
+  @type rrt-tree-mixin tree
+  (mapcar #'content (result-path-nodes tree)))
 
-  ;; @export
-  ;; @doc "returns a newly created `rrt-tree'. 
-  ;; it selects the branch with the computed path
-  ;; out of the branches directly connected to the root and
-  ;; reassignes the branch to the root."
-  ;; (defun next-branch (tree)
-  ;;   @type rrt-tree-mixin tree
-  ;;   (new (class-of tree)
-  ;; 	   :root (aif (result-path-nodes tree)
-  ;; 				  (second it)
-  ;; 				  (random-elt (children (root tree))))))
+;; @export
+;; @doc "returns a newly created `rrt-tree'. 
+;; it selects the branch with the computed path
+;; out of the branches directly connected to the root and
+;; reassignes the branch to the root."
+;; (defun next-branch (tree)
+;;   @type rrt-tree-mixin tree
+;;   (new (class-of tree)
+;; 	   :root (aif (result-path-nodes tree)
+;; 				  (second it)
+;; 				  (random-elt (children (root tree))))))
 
-  @export
-  @doc "Destructively modifies and return an RRT-TREE.  If the
+@export
+@doc "TREE -> TREE
+Destructively modifies and return an RRT-TREE.  If the
 `tree' has a finish node, it finds a path from the root to
 the end and then replace the root with the next node in that path.
 Otherwise it choose one child of the root at random and replace the
 root with it. In both cases the new root is orphanized."
-  (defun nnext-branch (tree)
-	@type rrt-tree-mixin tree
-	(let* ((new-root (aif (result-path-nodes tree)
-						  (second it)
-						  (random-elt (children (root tree))))))
-	  (reinitialize-instance tree :root new-root)
-	  tree))
+(defun nnext-branch (tree)
+  @type rrt-tree-mixin tree
+  (let* ((new-root (aif (result-path-nodes tree)
+						(second it)
+						(random-elt (children (root tree))))))
+	(reinitialize-instance tree :root new-root)
+	tree))
