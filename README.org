@@ -50,11 +50,9 @@ Also, it depends on the following libraries:
     
 ** Installation
 
-+ First grab the code with =git clone git@github.com:guicho271828/cl-rrt.git=
-+ Put it in local-project folder
-+ open slime REPL
++ Quicklisp loadable. First open slime REPL.
 + =(ql:quickload :cl-rrt)= and the library will be installed along with all
-  the dependencies
+  the dependencies.
 
 ** Author
 
