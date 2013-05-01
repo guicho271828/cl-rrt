@@ -336,11 +336,10 @@ the arguments should be of types as listed in the following :
 		(iter (for new-v in new-vs)
 			  (for near-v previous new-v initially nearest-v)
 			  (for near-node previous new-node initially nearest-node)
-			  (for local-count from 0)
 			  (in outer (next iteration))
 			  (inner-when body edge-prohibited-p
 				(when (funcall edge-prohibited-p near-v new-v)
-				  (next-iteration)))
+				  (leave)))
 			  (inner-when body run-on-node
 				(funcall run-on-node near-v new-v))
 			  (for new-node = (rrt-node new-v))
