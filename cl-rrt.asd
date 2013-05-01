@@ -20,6 +20,7 @@
   :license "LLGPL"
   :depends-on (:iterate
                :alexandria
+			   :inner-conditional
                :cl-annot
                :anaphora)
   :components ((:module "src"

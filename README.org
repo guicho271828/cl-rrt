@@ -28,6 +28,11 @@ the randomly generated obstacles. The source is in =t/= .
 planning. /The International Journal of Robotics Research/, Vol. 20,
 No. 5, pp. 378–400, 2001.
 
+** Recent changes
+
++ =edge-prohibited-p= and =finish-p= is now keyword arguments. (2013
+  March 1)
+
 ** Dependencies
 
 This library is at least tested on implementations listed below:
@@ -151,8 +156,8 @@ It returns multiple-values.
 
 #+BEGIN_SRC lisp
 (rrt-search random-generator new-v-generator
-            edge-prohibited-p finish-p
-            &key start-v tree (tree-class 'rrt-tree-tree) (max-nodes 15)
+            &key edge-prohibited-p finish-p
+            start-v tree (tree-class 'rrt-tree-tree) (max-nodes 15)
             (max-iteration 30) run-on-node)
 ;; --> tree, num-nodes, iteration
 #+END_SRC

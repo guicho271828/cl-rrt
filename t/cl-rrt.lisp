@@ -65,13 +65,16 @@
 									 (random *ymax*))
 						   :r (random *radius*))))) ;; radius
 
-(defun touch-obstacle (near new obst)
-  (> (r obst)
-	 (dist (mul (add new near) 1/2)
-		   (p obst))))
-
 (defun in-obstacle (p obst)
   (> (r obst) (dist p (p obst))))
+
+(defun touch-obstacle (near new obst)
+  (let* ((dp (sub new near))
+		 (len (norm dp)))
+	(unless (zerop len)
+	  (iter (with dpn = (mul dp (/ 1 len)))
+			(for dl to len by 1)
+			(thereis (in-obstacle (add near (mul dpn dl)) obst))))))
 
 (ok (not (touch-obstacle
 		  (point 0 0)
@@ -93,9 +96,11 @@
 	  (stroke))))
 
 (defun draw-point (p &optional (r 2))
-  (with-slots (x y) p
-	(centered-circle-path x y r)
-	(fill-path)))
+  (with-graphics-state
+	(set-rgba-stroke 0 0 0 0.2)
+	(with-slots (x y) p
+	  (centered-circle-path x y r)
+	  (fill-path))))
 (defun draw-edge (p1 p2)
   (move-to (x p1) (y p1))
   (line-to (x p2) (y p2))
@@ -125,54 +130,95 @@
 		(setf *goal* (random-point)))
   (iter (while (some (curry #'in-obstacle *start*) *obstacles*))
 		(setf *start* (random-point)))
-  (ok (rrt-search #'random-point
-				  #'new-v
-				  #'touch-obstacles
-				  #'finish-p
-				  :start-v *start*
-				  :max-nodes MOST-POSITIVE-FIXNUM
-				  :max-iteration 500
-				  :run-on-node (lambda (nearest new)
-								 (draw-edge nearest new)
-								 (draw-point new))))
-  
-  (iter (for obs in *obstacles*)
-		(draw-obst obs))
-  (set-rgb-fill 1 0 0)
-  (draw-point *start*)
-  (set-rgb-fill 0 0 1)
-  (draw-point *goal*)
-  (save-png #.(asdf:system-relative-pathname
-			   :cl-rrt-test
-			   "test-rrt-tree-tree.png")))
+  (let ((tree (rrt-search #'random-point
+						  #'new-v
+						  :edge-prohibited-p #'touch-obstacles
+						  :finish-p #'finish-p
+						  :start-v *start*
+						  :max-nodes MOST-POSITIVE-FIXNUM
+						  :max-iteration MOST-POSITIVE-FIXNUM
+						  :run-on-node (lambda (nearest new)
+										 (draw-edge nearest new)
+										 (draw-point new)))))
+	
+	(iter (for obs in *obstacles*)
+		  (draw-obst obs))
+	(set-rgb-fill 1 0 0)
+	(draw-point *start*)
+	(set-rgb-fill 0 0 1)
+	(draw-point *goal*)
+	(set-rgb-fill 0 1 0)
+	(draw-point (content (finish-node tree)))
+	(save-png #.(asdf:system-relative-pathname
+				 :cl-rrt-test
+				 "test-rrt-tree-tree.png"))))
 
 (with-canvas (:width *xmax* :height *ymax*)
   (iter (while (some (curry #'in-obstacle *goal*) *obstacles*))
 		(setf *goal* (random-point)))
   (iter (while (some (curry #'in-obstacle *start*) *obstacles*))
 		(setf *start* (random-point)))
-  (ok (rrt-search #'random-point
-				  #'new-v
-				  #'touch-obstacles
-				  #'finish-p
-				  :start-v *start*
-				  :tree-class 'rrt-tree-list
-				  :max-nodes MOST-POSITIVE-FIXNUM
-				  :max-iteration 500
-				  :run-on-node (lambda (nearest new)
-								 (draw-edge nearest new)
-								 (draw-point new))))
-  
-  (iter (for obs in *obstacles*)
-		(draw-obst obs))
-  (set-rgb-fill 1 0 0)
-  (draw-point *start*)
-  (set-rgb-fill 0 0 1)
-  (draw-point *goal*)
-  (save-png #.(asdf:system-relative-pathname
-			   :cl-rrt-test
-			   "test-rrt-tree-list.png")))
+  (let ((tree (rrt-search #'random-point
+						  #'new-v
+						  :edge-prohibited-p #'touch-obstacles
+						  :finish-p #'finish-p
+						  :start-v *start*
+						  :max-nodes MOST-POSITIVE-FIXNUM
+						  :max-iteration MOST-POSITIVE-FIXNUM
+						  :run-on-node (lambda (nearest new)
+										 (draw-edge nearest new)
+										 (draw-point new)))))
+	
+	(iter (for obs in *obstacles*)
+		  (draw-obst obs))
+	(set-rgb-fill 1 0 0)
+	(draw-point *start*)
+	(set-rgb-fill 0 0 1)
+	(draw-point *goal*)
+	(set-rgb-fill 0 1 0)
+	(draw-point (content (finish-node tree)))
+	(save-png #.(asdf:system-relative-pathname
+				 :cl-rrt-test
+				 "test-rrt-tree-list.png"))))
 
 ;; blah blah blah.
 
+(defun new-vs (near random)
+  (values-list
+   (iter (with len = (dist random near))
+		 (for l from 1 below len by *edge-length*)
+		 (collecting
+		  (add near (mul (sub random near)
+						 (/ l len)))))))
+
+
+(with-canvas (:width *xmax* :height *ymax*)
+  (iter (while (some (curry #'in-obstacle *goal*) *obstacles*))
+		(setf *goal* (random-point)))
+  (iter (while (some (curry #'in-obstacle *start*) *obstacles*))
+		(setf *start* (random-point)))
+  (let ((tree (split-branch-rrt-search
+			   #'random-point
+			   #'new-vs
+			   :edge-prohibited-p #'touch-obstacles
+			   :finish-p #'finish-p
+			   :start-v *start*
+			   :tree-class 'rrt-tree-list
+			   :max-nodes MOST-POSITIVE-FIXNUM
+			   :max-iteration MOST-POSITIVE-FIXNUM
+			   :run-on-node (lambda (nearest new)
+							  (draw-edge nearest new)
+							  (draw-point new)))))
+	
+	(iter (for obs in *obstacles*)
+		  (draw-obst obs))
+	(set-rgb-fill 1 0 0)
+	(draw-point *start*)
+	(set-rgb-fill 0 0 1)
+	(draw-point *goal*)
+	(set-rgb-fill 0 1 0)
+	(draw-point (content (finish-node tree)))
+	(save-png #.(asdf:system-relative-pathname
+				 :cl-rrt-test
+				 "test-split-rrt.png"))))
 (finalize)
