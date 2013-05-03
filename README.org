@@ -52,6 +52,9 @@ Also, it depends on the following libraries:
     Python-like Annotation Syntax for Common Lisp
 
 + ANAPHORA  ::
+
++ Inner-conditional by me ::
+     Loop optimizer macros.
     
 ** Installation
 
