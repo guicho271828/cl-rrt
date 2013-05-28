@@ -20,8 +20,8 @@
   :license "LLGPL"
   :depends-on (:iterate
                :alexandria
-			   :inner-conditional
-               :cl-annot
+	       ;; :inner-conditional
+               :cl-syntax-annot
                :anaphora)
   :components ((:module "src"
 				:serial t

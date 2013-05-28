@@ -1,5 +1,5 @@
 (in-package :cl-rrt)
-(annot:enable-annot-syntax)
+(use-syntax :annot)
 
 @export
 @export-accessors
@@ -221,41 +221,38 @@ the arguments should be of types as listed in the following :
      (max-nodes 15)
      (max-iteration 30)
      run-on-node)
-  (with-inner (body)
-    (iter
-      (with start-node =
-	    (cond
-	      ((and tree (root tree)) (root tree))
-	      (start-v (rrt-node start-v))
-	      (t (error "either start-v or tree needs to be specified. ~
+  (iter
+    (with start-node =
+	  (cond
+	    ((and tree (root tree)) (root tree))
+	    (start-v (rrt-node start-v))
+	    (t (error "either start-v or tree needs to be specified. ~
                        tree should have its root node already."))))
-      (with tree = 
-	    (if tree
-		(reinitialize-instance tree :finish-node nil)
-		(make-instance tree-class :root start-node)))
-      (generate i
-		from (count-nodes tree)
-		below max-nodes)
-      (for j below max-iteration)
-      (for random-v     = (funcall random-generator))
-      (for nearest-node = (nearest-node random-v tree))
-      (for nearest-v    = (content nearest-node))
-      (for new-v = (funcall new-v-generator nearest-v random-v))
-      (inner-when body edge-prohibited-p
-	(when (funcall edge-prohibited-p nearest-v new-v)
-	  (next-iteration)))
-      (inner-when body run-on-node
-	(funcall run-on-node nearest-v new-v))
-      (for new-node = (rrt-node new-v))
-      (connect nearest-node new-node)
-      (insert new-node tree)
-      (inner-when body finish-p
-	(when (funcall finish-p new-v)
-	  (setf (finish-node tree) new-node)
-	  (return (values tree i j))))
-      (next i)
-      (finally
-       (return (values tree i j))))))
+    (with tree = 
+	  (if tree
+	      (reinitialize-instance tree :finish-node nil)
+	      (make-instance tree-class :root start-node)))
+    (generate i
+	      from (count-nodes tree)
+	      below max-nodes)
+    (for j below max-iteration)
+    (for random-v     = (funcall random-generator))
+    (for nearest-node = (nearest-node random-v tree))
+    (for nearest-v    = (content nearest-node))
+    (for new-v = (funcall new-v-generator nearest-v random-v))
+    (when (funcall edge-prohibited-p nearest-v new-v)
+      (next-iteration))
+    (when (functionp run-on-node)
+      (funcall run-on-node nearest-v new-v))
+    (for new-node = (rrt-node new-v))
+    (connect nearest-node new-node)
+    (insert new-node tree)
+    (when (funcall finish-p new-v)
+      (setf (finish-node tree) new-node)
+      (terminate))
+    (next i)
+    (finally
+     (return (values tree i j)))))
 
 (declaim (ftype (function ((function () t) 
 			   (function (t t) (values &rest t))
@@ -309,51 +306,50 @@ the arguments should be of types as listed in the following :
      (max-nodes 15)
      (max-iteration 30)
      run-on-node)
-  (with-inner (body)
-    (iter outer
-	  (with start-node =
-		(cond
-		  ((and tree (root tree)) (root tree))
-		  (start-v (rrt-node start-v))
-		  (t (error "either start-v or tree needs to be specified. ~
+  (iter outer
+	(with start-node =
+	      (cond
+		((and tree (root tree)) (root tree))
+		(start-v (rrt-node start-v))
+		(t (error "either start-v or tree needs to be specified. ~
                        In the latter case ~
                        the tree must have its root node."))))
-	  (with tree = 
-		(if tree
-		    (reinitialize-instance tree :finish-node nil)
-		    (make-instance tree-class :root start-node)))
-	  (generate node-count
-		    from (count-nodes tree)
-		    below max-nodes)
-	  (generate iteration
-		    below max-iteration)
-	  (for random-v     = (funcall random-generator))
-	  (for nearest-node = (nearest-node random-v tree))
-	  (for nearest-v    = (content nearest-node))
-	  (for new-vs = (multiple-value-list
-			 (funcall new-vs-generator nearest-v random-v)))
-	  (when new-vs
-	    (iter (for new-v in new-vs)
-		  (for near-v previous new-v initially nearest-v)
-		  (for near-node previous new-node initially nearest-node)
-		  (in outer (next iteration))
-		  (inner-when body edge-prohibited-p
-		    (when (funcall edge-prohibited-p near-v new-v)
-		      (leave)))
-		  (inner-when body run-on-node
-		    (funcall run-on-node near-v new-v))
-		  (for new-node = (rrt-node new-v))
-		  (connect near-node new-node)
-		  (insert new-node tree)
-		  (in outer (next node-count))
-		  (inner-when body finish-p
-		    (when (funcall finish-p new-v)
-		      (setf (finish-node tree) new-node)
-		      (return-from
-		       outer (values tree node-count iteration))))))
-	  (finally
-	   (return-from outer
-	     (values tree node-count iteration))))))
+	(with tree = 
+	      (if tree
+		  (reinitialize-instance tree :finish-node nil)
+		  (make-instance tree-class :root start-node)))
+	(generate node-count
+		  from (count-nodes tree)
+		  below max-nodes)
+	(generate iteration
+		  below max-iteration)
+	(for random-v     = (funcall random-generator))
+	(for nearest-node = (nearest-node random-v tree))
+	(for nearest-v    = (content nearest-node))
+	(for new-vs = (multiple-value-list
+		       (funcall new-vs-generator nearest-v random-v)))
+	(when new-vs
+	  (iter (for new-v in new-vs)
+		(for near-v previous new-v initially nearest-v)
+		(for near-node previous new-node initially nearest-node)
+		(in outer (next iteration))
+		(when (functionp edge-prohibited-p)
+		  (when (funcall edge-prohibited-p near-v new-v)
+		    (leave)))
+		(when (functionp run-on-node)
+		  (funcall run-on-node near-v new-v))
+		(for new-node = (rrt-node new-v))
+		(connect near-node new-node)
+		(insert new-node tree)
+		(in outer (next node-count))
+		(when (functionp finish-p)
+		  (when (funcall finish-p new-v)
+		    (setf (finish-node tree) new-node)
+		    (return-from
+		     outer (values tree node-count iteration))))))
+	(finally
+	 (return-from outer
+	   (values tree node-count iteration)))))
 
 @export @doc "TREE -> (list V)
 Returns the nodes of the computed path in a list, from
