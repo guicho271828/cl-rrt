@@ -6,15 +6,15 @@
 @doc "Node class of Random Tree."
 (defclass rrt-tree-node ()
   ((parent :type (or null rrt-tree-node)
-		   :accessor parent
-		   :initarg :parent
-		   :initform nil)
+	   :accessor parent
+	   :initarg :parent
+	   :initform nil)
    (children :type list
-			 :initform nil
-			 :accessor children)
+	     :initform nil
+	     :accessor children)
    (content :initarg :content
-			:initform nil
-			:accessor content)))
+	    :initform nil
+	    :accessor content)))
 
 @export
 @doc "
@@ -43,8 +43,8 @@ signals CHILD-NOT-FOUND < SIMPLE-CONDITION."
   @type rrt-tree-node parent
   @type rrt-tree-node child
   (if (find child (children parent))
-	  (removef (children parent) child)
-	  (signal 'child-not-found :parent parent :child child))
+      (removef (children parent) child)
+      (signal 'child-not-found :parent parent :child child))
   (setf (parent child) nil))
 
 @export
@@ -55,11 +55,11 @@ with the same structure as that of the original random-tree."
   @type rrt-tree-node node
   @type function fn
   (aif (children node)
-	   (list* (funcall fn node)
-			  (mapcar (lambda (node)
-						(map-rrt-tree-node-recursively node fn))
-					  it))
-	   (funcall fn node)))
+       (list* (funcall fn node)
+	      (mapcar (lambda (node)
+			(map-rrt-tree-node-recursively node fn))
+		      it))
+       (funcall fn node)))
 
 @export
 @doc "Mapc over the RRT-TREE-NODEs of the tree and returns nil.
@@ -69,9 +69,9 @@ with the same structure as that of the original random-tree."
   @type function fn
   (funcall fn node)
   (awhen (children node)
-	(mapc (lambda (node)
-			(map-rrt-tree-node-recursively node fn))
-		  it)))
+    (mapc (lambda (node)
+	    (map-rrt-tree-node-recursively node fn))
+	  it)))
 
 @export
 @doc "Map over the contents of RRT-TREE-NODEs of the tree and
@@ -103,17 +103,17 @@ an instance of it, but rather inherit it. It has three slots and accessors with 
    a path which satisfies the goal condition."
 (defclass rrt-tree-mixin ()
   ((root :type (or null rrt-tree-node)
-		 :accessor root
-		 :initarg :root)
+	 :accessor root
+	 :initarg :root)
    (finish-node :type (or null rrt-tree-node)
-				:documentation ""
-				:initarg :finish-node
-				:accessor finish-node
-				:initform nil)))
+		:documentation ""
+		:initarg :finish-node
+		:accessor finish-node
+		:initform nil)))
 
 (defmethod initialize-instance :after ((tree rrt-tree-mixin)
-									   &rest args
-									   &key root &allow-other-keys)
+				       &rest args
+				       &key root &allow-other-keys)
   @ignore args
   (insert root tree))
 
@@ -169,21 +169,21 @@ to measure the distance between two points in C-space
 (defgeneric configuration-space-distance (point1 point2))
 
 (declaim (ftype (function ((function () t) 
-						   (function (t t) t)
-						   &key
-						   (:edge-prohibited-p (function (t t) boolean))
-						   (:finish-p (function (t) boolean))
-						   (:start-v t)
-						   (:tree rrt-tree-mixin)
-						   (:tree-class (or symbol class))
-						   (:max-nodes fixnum)
-						   (:max-iteration fixnum)
-						   (:run-on-node (function (t t) boolean)))
-						  (values
-						   rrt-tree-mixin
-						   fixnum
-						   fixnum))
-				rrt-search))
+			   (function (t t) t)
+			   &key
+			   (:edge-prohibited-p (function (t t) boolean))
+			   (:finish-p (function (t) boolean))
+			   (:start-v t)
+			   (:tree rrt-tree-mixin)
+			   (:tree-class (or symbol class))
+			   (:max-nodes fixnum)
+			   (:max-iteration fixnum)
+			   (:run-on-node (function (t t) boolean)))
+			  (values
+			   rrt-tree-mixin
+			   fixnum
+			   fixnum))
+		rrt-search))
 
 @export
 @doc "RRT-search function.
@@ -210,69 +210,69 @@ the arguments should be of types as listed in the following :
 
 "
 (defun rrt-search
-	(random-generator
-	 new-v-generator
-	 &key
-	 edge-prohibited-p
-	 finish-p
-	 start-v
-	 tree
-	 (tree-class 'rrt-tree-tree)
-	 (max-nodes 15)
-	 (max-iteration 30)
-	 run-on-node)
+    (random-generator
+     new-v-generator
+     &key
+     edge-prohibited-p
+     finish-p
+     start-v
+     tree
+     (tree-class 'rrt-tree-tree)
+     (max-nodes 15)
+     (max-iteration 30)
+     run-on-node)
   (with-inner (body)
-	(iter
-	  (with start-node =
-			(cond
-			  ((and tree (root tree)) (root tree))
-			  (start-v (rrt-node start-v))
-			  (t (error "either start-v or tree needs to be specified. ~
+    (iter
+      (with start-node =
+	    (cond
+	      ((and tree (root tree)) (root tree))
+	      (start-v (rrt-node start-v))
+	      (t (error "either start-v or tree needs to be specified. ~
                        tree should have its root node already."))))
-	  (with tree = 
-			(if tree
-				(reinitialize-instance tree :finish-node nil)
-				(make-instance tree-class :root start-node)))
-	  (generate i
-				from (count-nodes tree)
-				below max-nodes)
-	  (for j below max-iteration)
-	  (for random-v     = (funcall random-generator))
-	  (for nearest-node = (nearest-node random-v tree))
-	  (for nearest-v    = (content nearest-node))
-	  (for new-v = (funcall new-v-generator nearest-v random-v))
-	  (inner-when body edge-prohibited-p
-		(when (funcall edge-prohibited-p nearest-v new-v)
-		  (next-iteration)))
-	  (inner-when body run-on-node
-		(funcall run-on-node nearest-v new-v))
-	  (for new-node = (rrt-node new-v))
-	  (connect nearest-node new-node)
-	  (insert new-node tree)
-	  (inner-when body finish-p
-		(when (funcall finish-p new-v)
-		  (setf (finish-node tree) new-node)
-		  (return (values tree i j))))
-	  (next i)
-	  (finally
-	   (return (values tree i j))))))
+      (with tree = 
+	    (if tree
+		(reinitialize-instance tree :finish-node nil)
+		(make-instance tree-class :root start-node)))
+      (generate i
+		from (count-nodes tree)
+		below max-nodes)
+      (for j below max-iteration)
+      (for random-v     = (funcall random-generator))
+      (for nearest-node = (nearest-node random-v tree))
+      (for nearest-v    = (content nearest-node))
+      (for new-v = (funcall new-v-generator nearest-v random-v))
+      (inner-when body edge-prohibited-p
+	(when (funcall edge-prohibited-p nearest-v new-v)
+	  (next-iteration)))
+      (inner-when body run-on-node
+	(funcall run-on-node nearest-v new-v))
+      (for new-node = (rrt-node new-v))
+      (connect nearest-node new-node)
+      (insert new-node tree)
+      (inner-when body finish-p
+	(when (funcall finish-p new-v)
+	  (setf (finish-node tree) new-node)
+	  (return (values tree i j))))
+      (next i)
+      (finally
+       (return (values tree i j))))))
 
 (declaim (ftype (function ((function () t) 
-						   (function (t t) (values &rest t))
-						   &key
-						   (:edge-prohibited-p (function (t t) boolean))
-						   (:finish-p (function (t) boolean))
-						   (:start-v t)
-						   (:tree rrt-tree-mixin)
-						   (:tree-class (or symbol class))
-						   (:max-nodes fixnum)
-						   (:max-iteration fixnum)
-						   (:run-on-node (function (t t) boolean)))
-						  (values
-						   rrt-tree-mixin
-						   fixnum
-						   fixnum))
-				split-branch-rrt-search))
+			   (function (t t) (values &rest t))
+			   &key
+			   (:edge-prohibited-p (function (t t) boolean))
+			   (:finish-p (function (t) boolean))
+			   (:start-v t)
+			   (:tree rrt-tree-mixin)
+			   (:tree-class (or symbol class))
+			   (:max-nodes fixnum)
+			   (:max-iteration fixnum)
+			   (:run-on-node (function (t t) boolean)))
+			  (values
+			   rrt-tree-mixin
+			   fixnum
+			   fixnum))
+		split-branch-rrt-search))
 @export
 @doc "RRT-search function.
 let V as a type variable.
@@ -298,62 +298,62 @@ the arguments should be of types as listed in the following :
 
 "
 (defun split-branch-rrt-search
-	(random-generator
-	 new-vs-generator
-	 &key
-	 edge-prohibited-p
-	 finish-p
-	 start-v
-	 tree
-	 (tree-class 'rrt-tree-tree)
-	 (max-nodes 15)
-	 (max-iteration 30)
-	 run-on-node)
+    (random-generator
+     new-vs-generator
+     &key
+     edge-prohibited-p
+     finish-p
+     start-v
+     tree
+     (tree-class 'rrt-tree-tree)
+     (max-nodes 15)
+     (max-iteration 30)
+     run-on-node)
   (with-inner (body)
-	(iter outer
+    (iter outer
 	  (with start-node =
-			(cond
-			  ((and tree (root tree)) (root tree))
-			  (start-v (rrt-node start-v))
-			  (t (error "either start-v or tree needs to be specified. ~
+		(cond
+		  ((and tree (root tree)) (root tree))
+		  (start-v (rrt-node start-v))
+		  (t (error "either start-v or tree needs to be specified. ~
                        In the latter case ~
                        the tree must have its root node."))))
 	  (with tree = 
-			(if tree
-				(reinitialize-instance tree :finish-node nil)
-				(make-instance tree-class :root start-node)))
+		(if tree
+		    (reinitialize-instance tree :finish-node nil)
+		    (make-instance tree-class :root start-node)))
 	  (generate node-count
-				from (count-nodes tree)
-				below max-nodes)
+		    from (count-nodes tree)
+		    below max-nodes)
 	  (generate iteration
-				below max-iteration)
+		    below max-iteration)
 	  (for random-v     = (funcall random-generator))
 	  (for nearest-node = (nearest-node random-v tree))
 	  (for nearest-v    = (content nearest-node))
 	  (for new-vs = (multiple-value-list
-					 (funcall new-vs-generator nearest-v random-v)))
+			 (funcall new-vs-generator nearest-v random-v)))
 	  (when new-vs
-		(iter (for new-v in new-vs)
-			  (for near-v previous new-v initially nearest-v)
-			  (for near-node previous new-node initially nearest-node)
-			  (in outer (next iteration))
-			  (inner-when body edge-prohibited-p
-				(when (funcall edge-prohibited-p near-v new-v)
-				  (leave)))
-			  (inner-when body run-on-node
-				(funcall run-on-node near-v new-v))
-			  (for new-node = (rrt-node new-v))
-			  (connect near-node new-node)
-			  (insert new-node tree)
-			  (in outer (next node-count))
-			  (inner-when body finish-p
-				(when (funcall finish-p new-v)
-				  (setf (finish-node tree) new-node)
-				  (return-from
-				   outer (values tree node-count iteration))))))
+	    (iter (for new-v in new-vs)
+		  (for near-v previous new-v initially nearest-v)
+		  (for near-node previous new-node initially nearest-node)
+		  (in outer (next iteration))
+		  (inner-when body edge-prohibited-p
+		    (when (funcall edge-prohibited-p near-v new-v)
+		      (leave)))
+		  (inner-when body run-on-node
+		    (funcall run-on-node near-v new-v))
+		  (for new-node = (rrt-node new-v))
+		  (connect near-node new-node)
+		  (insert new-node tree)
+		  (in outer (next node-count))
+		  (inner-when body finish-p
+		    (when (funcall finish-p new-v)
+		      (setf (finish-node tree) new-node)
+		      (return-from
+		       outer (values tree node-count iteration))))))
 	  (finally
 	   (return-from outer
-		 (values tree node-count iteration))))))
+	     (values tree node-count iteration))))))
 
 @export @doc "TREE -> (list V)
 Returns the nodes of the computed path in a list, from
@@ -362,12 +362,12 @@ contains the root of the tree."
 (defun result-path-nodes (tree)
   @type rrt-tree-mixin tree
   (iter (with results = nil)
-		(for node
-			 initially (finish-node tree)
-			 then (parent node))
-		(while node)
-		(push node results)
-		(finally (return results))))
+	(for node
+	     initially (finish-node tree)
+	     then (parent node))
+	(while node)
+	(push node results)
+	(finally (return results))))
 
 @export
 @doc "TREE -> (list (node V))
@@ -400,7 +400,7 @@ root with it. In both cases the new root is orphanized."
 (defun nnext-branch (tree)
   @type rrt-tree-mixin tree
   (let* ((new-root (aif (result-path-nodes tree)
-						(second it)
-						(random-elt (children (root tree))))))
-	(reinitialize-instance tree :root new-root)
-	tree))
+			(second it)
+			(random-elt (children (root tree))))))
+    (reinitialize-instance tree :root new-root)
+    tree))
