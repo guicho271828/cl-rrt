@@ -1,6 +1,6 @@
 (in-package :cl-rrt)
+(use-syntax :annot)
 
-(annot:enable-annot-syntax)
 @export
 @doc "HELPER FUNCTION: ensure a node doesn't have a parent"
 (defun orphanize (child)

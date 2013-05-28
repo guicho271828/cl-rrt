@@ -1,5 +1,5 @@
 (in-package :cl-rrt)
-(annot:enable-annot-syntax)
+(use-syntax :annot)
 
 @export
 @export-accessors
