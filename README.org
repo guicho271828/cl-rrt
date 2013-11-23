@@ -9,22 +9,22 @@
 
 
 RRT is a fast probabilistic multidimentional path-plannning algorithm
-introduced by S.M.LaValle [fn:paper]. It now has a widespread use in robotics
+introduced by S.M.LaValle (1). It now has a widespread use in robotics
 and now able to handle the real time systems such as automatic car
 driving AI. Also, it has various extentions and optimization methods
-such as:
+(but not yet implemented here) such as:
 
-+ MP-RRT
-+ RR-belief-tree
-+ RRG
-+ RRT*
-+ St-RRT
++ MP-RRT -- optimizing version of RRT
++ RR-belief-tree -- RRT under uncertainity
++ RRG -- use a graph structure instead of a tree
++ RRT* -- optimizing version of RRT
++ St-RRT -- temporal algorithm
 
 The above image is a test result of a motion planner from the
 start(red) to the end (blue). The path is avoiding the collision to
 the randomly generated obstacles. The source is in =t/= .
 
-[fn:paper] S.M. LaValle and J.J. Kuffner. Randomized kinodynamic
+(1) S.M. LaValle and J.J. Kuffner. Randomized kinodynamic
 planning. /The International Journal of Robotics Research/, Vol. 20,
 No. 5, pp. 378–400, 2001.
 
@@ -32,6 +32,11 @@ No. 5, pp. 378–400, 2001.
 
 + =edge-prohibited-p= and =finish-p= is now keyword arguments. (2013
   March 1)
+
+** Future extension
+
++ improvements in the nearest search.
+  + with R-tree, X-tree, kd-tree
 
 ** Dependencies
 
@@ -53,9 +58,6 @@ Also, it depends on the following libraries:
 
 + ANAPHORA  ::
 
-+ Inner-conditional by me ::
-     Loop optimizer macros.
-    
 ** Installation
 
 + Quicklisp loadable. First open slime REPL.
