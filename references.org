@@ -1,0 +1,335 @@
+* API
+
+in the following description and specification,
+I use these expression below:
+
++ =V= :: a vector class which represents a point in State-space.
+	 The instance of this type is called as a =content= of a node.
+         Holonomic and non-holonomic parameters like velocity
+         and acceralation should be stored in V. Also, the controls
+         of the robot should be stored here.
++ (node =V=) :: an rrt-tree-node instance whose slot =content= is V.
+
+*note* : In designing the protocol, I chosed not to 
+implement V as a mixin. The reason is because users cannot
+implement V as =ARRAY= or =VECTOR= in that case,
+which are fast but defined as a subclass
+of =BUILT-IN-CLASS= . They throw an error when they are specified as a
+superclass of other classes.
+
+
+Here is the list of classes and the interface functions.
+
+** Core Interfaces
+*** Class: =rrt-tree-mixin= 					      :class:
+The interface mixin class of random tree. Users do not create an
+instance of it, but rather inherit it. It has three slots and
+accessors with the same names:
+
++ root :: the root node of the tree. of type rrt-tree-node.
++ finish-node :: a slot which contains the last node of the computed
+                 path.  It is bound to nil, it means the previous
+                 search has failed to find a path which satisfies the
+                 goal condition.
+
+*** Class: =rrt-tree-node= 					      :class:
+
+Node class of Random Tree. 
+
++ parent :: Parent node. 
++ children :: a list of child nodes.
++ content :: Stores State-space point data which should support a method
+  [[cofiguration-space-distance]]. All holonomic and non-holonomic values
+  such as position, velocity and accelaration should be stored in
+  the instance in =content=.
+
+*** Generic Function: =configuration-space-distance= 		   :function:
+#+BEGIN_SRC lisp
+(configuration-space-distance point1 point2)
+#+END_SRC
+: V, V -> NUMBER
+This generic function should provide a method to measure the distance
+between two points in C-space (configuration space). Users should
+implement the desired method on its own. The content =V= also has
+the control values (in State-space), but they shouldn't be used for
+the distance calculation.
+
+*** Generic Function: =nearest-node= 				   :function:
+#+BEGIN_SRC lisp
+(nearest-node target tree)
+#+END_SRC
+: V, tree -> (node V), NUMBER, V
+
+This generic function should implement a method
+which finds the nearest node in a `tree' to the `target'.
+It returns multiple-values.
+
+1. The first return value should be the nearest node.
+2. The second value should be the distance between the target 
+   and the nearest node.
+3. The third value should be the content of the node.
+
+*** Function: =rrt-search=					   :function:
+
+#+BEGIN_SRC lisp
+(rrt-search random-generator new-v-generator
+            &key edge-prohibited-p finish-p
+            start-v tree (tree-class 'rrt-tree-tree) (max-nodes 15)
+            (max-iteration 30) run-on-node)
+;; --> tree, num-nodes, iteration
+#+END_SRC
+
+RRT-search function.
+
++ random-generator :: (no args) -> =V= random
++ new-v-generator ::  =V= nearest, =V= random -> =V= new
+     This function provides a way to 
++ edge-prohibited-p :: =V= nearest, =V= new -> =Bool= result
++ finish-p :: =V= new -> =Bool= result
+
++ start-v :: =V= -- A starting point of RRT searching in a
+             State-space. It will be stored in the root node of the
+             =tree= if no =tree= is specified in the *&key* arguments.
++ tree :: A tree to be used as a prototype of the search.  It is
+          going to be destructively modified in the search.  If not
+          specified, it internally creates an instance of
+          =tree-class=.
++ tree-class :: a =Class specifier=.
++ max-nodes :: a =Fixnum= which specify the maximum number of nodes
+               in the tree. When the total number of nodes reaches
+               this limit, it finish the search iteration without
+               setting the =finish-node= of =tree=.
++ max-iteration :: a =Fixnum= which specify the maximum number of
+                   iteration in =rrt-search=. When the total number
+                   of iteration reaches this limit, it finish the
+                   search iteration without setting the
+                   =finish-node= of =tree=.
++ run-on-node :: =V= nearest, =V= new -> t
+		 This is a function called in the last of each iteration.
+
+=rrt-search= returns the result tree as its primary value.  The
+secondaly value is the total number of the nodes, and third value is
+the number of iteration done in the search. When the search fails or
+the search is interrupted, the =finish-node= of the tree is set to nil.
+
+** Tree classes
+*** Accessor: =nodes=
+
+#+BEGIN_SRC lisp
+(nodes tree)
+#+END_SRC
+: TREE -> (list (node V))
+This generic function should provide a method
+to accumulate all leafs into a list.
+A leaf is a node with no children.
+*** Class: =rrt-tree-list= 				      :class:
+
+- Parent classes:  [[class rrt-tree-mixin][rrt-tree-mixin]]
+
+an rrt-tree implementation which uses
+ a simple linear search method for nearest-search.
+
+*** Class: =rrt-tree-tree= 					      :class:
+
+- Parent classes:   [[class rrt-tree-mixin][rrt-tree-mixin]]
+
+An rrt-tree implementation which 
+does breadth-first search in nearest-search.
+
+*** Generic Function: =count-nodes=
+
+#+BEGIN_SRC lisp
+(count-nodes tree)
+#+END_SRC
+
+: TREE -> FIXNUM
+This generic function should provide a method
+to count the number of leafs.
+
+*** Generic Function: =leafs=
+
+#+BEGIN_SRC lisp
+(leafs tree)
+#+END_SRC
+: TREE -> (list (node V))
+This generic function should provide a method
+to accumulate all leafs into a list.
+A leaf is a node with no children.
+*** Generic Function: =insert=
+
+#+BEGIN_SRC lisp
+(insert content tree)
+#+END_SRC
+: V, TREE -> TREE
+This generic function provides
+an additional procedure during the insertion of a `content' to the `tree'.
+The code in this method does something other than the linking of the
+parent and child nodes, and optimizes nearest-search. For example, 
+if you want to use B-tree for the nearest search,
+ here you can add codes for inserting a content into a B-tree.
+
+Always returns `tree' as a result of :around method of rrt-tree-mixin.
+** Conditions
+*** Condition: =child-not-found= 				      :class:
+
+**** Inheritance
+
+- Parent classes:
+    [[class simple-condition][simple-condition]]
+- Precedence list:
+    [[class child-not-found][child-not-found]], [[class simple-condition][simple
+    condition]], [[class condition][condition]], [[class slot-object][slot
+    object]], [[class t][t]]
+- Direct subclasses:
+    None.
+
+**** Description
+
+Signaled when you try to [[disconnect]] a child node from a node that is
+not its parent.
+
+**** Direct Slots
+
+# link target 2: <<parent>>
+# link target: <<slot parent>>
+
+***** Slot: =parent=						       :slot:
+***** Slot: =child=						       :slot:
+
+** Path and tree walking
+*** Function: =result-path=					   :function:
+
+
+#+BEGIN_SRC lisp
+(result-path tree)
+#+END_SRC
+: TREE -> (list V)
+
+Returns a list of State-space points of the computed paths
+from the root to the end.  Returns nil if the path was not found. The
+list contains the root of the tree.
+
+*** Function: =result-path-nodes=				   :function:
+
+#+BEGIN_SRC lisp
+(result-path-nodes tree)
+#+END_SRC
+: TREE -> (list (node V))
+Returns the nodes of the computed path in a list, from
+the root to the end. Returns nil if the path was not found. The list
+contains the root of the tree.
+
+*** Function: =map-rrt-tree-content-recursively=		   :function:
+
+#+BEGIN_SRC lisp
+(map-rrt-tree-content-recursively node fn)
+#+END_SRC
+: (node V), ((node V) -> t) -> (list t)
+
+Walk over the child nodes of =node= recursively,
+ call the function with the content of the node and
+ return each result in a nested list-based tree 
+with the same structure as the original random-tree.
+
+*** Function: =map-rrt-tree-node-recursively=			   :function:
+
+#+BEGIN_SRC lisp
+(map-rrt-tree-node-recursively node fn)
+#+END_SRC
+: (node V), (V -> t) -> (list t)
+
+Walk over the child nodes of =node= recursively and
+ call the function with the node and
+ return each result in a nested list-based tree 
+with the same structure as that of the original random-tree.
+
+*** Function: =mapc-rrt-tree-content-recursively=		   :function:
+
+#+BEGIN_SRC lisp
+(mapc-rrt-tree-content-recursively node fn)
+#+END_SRC
+
+Same as map-rrt-tree-content-recursively but returns nil.
+ Only for the side effect.
+
+*** Function: =mapc-rrt-tree-node-recursively=			   :function:
+
+#+BEGIN_SRC lisp
+(mapc-rrt-tree-node-recursively node fn)
+#+END_SRC
+
+Same as map-rrt-tree-node-recursively but returns nil.
+ Only for the side effect.
+
+*** Function: =nnext-branch=					   :function:
+
+#+BEGIN_SRC lisp
+(nnext-branch tree)
+#+END_SRC
+
+: TREE -> TREE
+
+Destructively modifies and return an RRT-TREE.  If the
+=tree= has a finish node, it finds a path from the root to
+the end and then replace the root with the next node in that path.
+Otherwise it choose one child of the root at random and replace the
+root with it. In both cases the new root is orphanized.
+
+This method is useful when you want to reuse the tree in real-time
+robot systems. With this function, you are able to cut the root-most
+edge when the actual robot has already reached the next State-space
+ and the root node is no longer needed.
+
+** Node manipulation helper
+*** Function: =rrt-node=					   :function:
+
+#+BEGIN_SRC lisp
+(rrt-node content)
+#+END_SRC
+
+
+Identical to =(make-instance 'rrt-tree-node :content content)=
+
+*** Function: =adopt-children=					   :function:
+
+#+BEGIN_SRC lisp
+(adopt-children new-parent old-parent)
+#+END_SRC
+
+HELPER FUINCTION: removes the children of old-parent and
+the new-parent takes all of them.
+
+*** Function: =connect=						   :function:
+
+#+BEGIN_SRC lisp
+(connect parent child)
+#+END_SRC
+
+connect two nodes as a parent and a child.
+
+*** Function: =disconnect=					   :function:
+
+#+BEGIN_SRC lisp
+(disconnect parent child)
+#+END_SRC
+
+disconnect a parent and its child.
+signals CHILD-NOT-FOUND < SIMPLE-CONDITION.
+
+*** Function: =neglect=						   :function:
+
+#+BEGIN_SRC lisp
+(neglect parent)
+#+END_SRC
+
+HELPER FUNCTION: disconnect all children from the
+specified parent
+
+*** Function: =orphanize=					   :function:
+
+#+BEGIN_SRC lisp
+(orphanize child)
+#+END_SRC
+
+HELPER FUNCTION: ensure a node doesn't have a parent
+
