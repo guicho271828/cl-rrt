@@ -19,7 +19,11 @@ driving AI. Also, it has various extentions and optimization methods
 
 The above image is a test result of a motion planner from the
 start(red) to the end (blue). The path is avoiding the collision to
-the randomly generated obstacles. The source is in =t/= .
+the randomly generated obstacles.
+Note that the path is not optimized -- RRT gains speed sacrificing the
+cost of the path.
+The source is in =t/= .
+
 
 (1) S.M. LaValle and J.J. Kuffner. Randomized kinodynamic
 planning. /The International Journal of Robotics Research/, Vol. 20,
