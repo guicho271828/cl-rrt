@@ -1,5 +1,5 @@
-(in-package :cl-rrt-test)
-(in-suite :rrt)
+(in-package :cl-rrt.test)
+(in-suite :cl-rrt)
 
 (defun new-vs (near random)
   "the length of edges are fixed, but many nodes are produced for each random point.
@@ -43,7 +43,7 @@
       (ignore-errors
         (draw-point (content (finish-node tree))))
       (save-png (asdf:system-relative-pathname
-                 :cl-rrt-test
+                 :cl-rrt.test
                  path)))))
 
 (test :split-tree

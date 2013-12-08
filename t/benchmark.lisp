@@ -1,7 +1,7 @@
 
-(in-package :cl-rrt-test)
-(def-suite :rrt.performance :in :rrt)
-(in-suite :rrt.performance)
+(in-package :cl-rrt.test)
+(def-suite :cl-rrt.benchmark)
+(in-suite :cl-rrt.benchmark)
 
 (defmacro with-timing (&body body)
   (let ((start (gensym)))
@@ -14,7 +14,7 @@
         (max-trials-per-environment 3)
         (hash (make-hash-table :test #'equal)))
     (ensure-directories-exist
-     (asdf:system-relative-pathname :cl-rrt-test "environments/")
+     (asdf:system-relative-pathname :cl-rrt.test "environments/")
      :verbose t)
     (iter (generate trial from 1 to max-trials)
           (let* ((*obstacles*
@@ -60,7 +60,7 @@
          (*howmany* 70)
          (*edge-length* 10)
          (*goal-dist* 10)
-         (*max-nodes* 10000))
+         (*max-nodes* 1000))
     (print :small)
     (perform)))
 
@@ -71,7 +71,7 @@
          (*howmany* 70)
          (*edge-length* 6)
          (*goal-dist* 6)
-         (*max-nodes* 10000))
+         (*max-nodes* 1000))
     (print :medium)
     (perform)))
 
@@ -82,6 +82,6 @@
          (*howmany* 70)
          (*edge-length* 3)
          (*goal-dist* 3)
-         (*max-nodes* 10000))
+         (*max-nodes* 1000))
     (print :large)
     (perform)))

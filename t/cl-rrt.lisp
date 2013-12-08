@@ -4,7 +4,7 @@ Copyright (c) 2013 Masataro Asai (guicho2.71828@gmail.com)
 |#
 
 (in-package :cl-user)
-(defpackage cl-rrt-test
+(defpackage cl-rrt.test
   (:use :cl
         :iterate
         :vecto
@@ -12,10 +12,10 @@ Copyright (c) 2013 Masataro Asai (guicho2.71828@gmail.com)
         :cl-rrt.rtree
         :fiveam)
   (:import-from :alexandria :curry))
-(in-package :cl-rrt-test)
+(in-package :cl-rrt.test)
 
-(def-suite :rrt)
-(in-suite :rrt)
+(def-suite :cl-rrt)
+(in-suite :cl-rrt)
 
 (defclass point ()
   ((x :accessor x :initarg :x)

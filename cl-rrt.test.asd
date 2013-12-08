@@ -3,7 +3,7 @@
   Copyright (c) 2013 Masataro Asai (guicho2.71828@gmail.com)
 |#
 
-(defsystem cl-rrt-test
+(defsystem cl-rrt.test
   :author "Masataro Asai"
   :license "LLGPL"
   :depends-on (:cl-rrt
@@ -15,10 +15,9 @@
                 ((:file "cl-rrt")
                  (:file "tree-and-list-tree")
                  (:file "split-edges")
-                 (:file "rtree")
-                 (:file "performance"))
+                 (:file "rtree"))
                 :serial t))
   :perform (load-op :after (op c) 
-		    (eval (read-from-string "(fiveam:run! :rrt)"))
+		    (eval (read-from-string "(fiveam:run! :cl-rrt)"))
 		    (asdf:clear-system c)))
 

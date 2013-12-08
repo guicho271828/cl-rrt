@@ -1,5 +1,5 @@
-(in-package :cl-rrt-test)
-(in-suite :rrt)
+(in-package :cl-rrt.test)
+(in-suite :cl-rrt)
 
 (defun run-rrt (class &rest args)
   (values
@@ -43,7 +43,7 @@
                                 (return-from finish))))
           (draw-point (content (finish-node tree)))))
       (save-png (asdf:system-relative-pathname
-                 :cl-rrt-test
+                 :cl-rrt.test
                  path)))))
 
 

@@ -1,5 +1,5 @@
-(in-package :cl-rrt-test)
-(in-suite :rrt)
+(in-package :cl-rrt.test)
+(in-suite :cl-rrt)
 
 (defmethod content-list ((p point))
   (list (x p) (y p)))
