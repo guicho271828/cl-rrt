@@ -40,11 +40,6 @@
 	(finding (values node distance content)
 			 minimizing distance)))
 
-(defmethod insert (v (tree rrt-tree-list))
-  (push v (nodes tree)))
+(defmethod insert ((node rrt-tree-node) (tree rrt-tree-list))
+  (push node (nodes tree)))
 
-(defmethod leafs ((tree rrt-tree-list))
-  (remove-if #'children (nodes tree)))
-
-(defmethod count-nodes ((tree rrt-tree-list))
-  (length (nodes tree)))

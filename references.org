@@ -120,8 +120,8 @@ the search is interrupted, the =finish-node= of the tree is set to nil.
 #+END_SRC
 : TREE -> (list (node V))
 This generic function should provide a method
-to accumulate all leafs into a list.
-A leaf is a node with no children.
+to accumulate all nodes into a list. See also: =leafs=
+
 *** Class: =rrt-tree-list= 				      :class:
 
 - Parent classes:  [[class rrt-tree-mixin][rrt-tree-mixin]]
@@ -158,17 +158,23 @@ A leaf is a node with no children.
 *** Generic Function: =insert=
 
 #+BEGIN_SRC lisp
-(insert content tree)
+(insert node tree)
 #+END_SRC
-: V, TREE -> TREE
-This generic function provides
-an additional procedure during the insertion of a `content' to the `tree'.
-The code in this method does something other than the linking of the
-parent and child nodes, and optimizes nearest-search. For example, 
-if you want to use B-tree for the nearest search,
- here you can add codes for inserting a content into a B-tree.
+: (node V), TREE -> TREE
 
-Always returns `tree' as a result of :around method of rrt-tree-mixin.
+This function is not meant to be called by the user.
+
+It provides
+an additional procedure during the insertion of a `node' to the `tree'.
+The code in this method does something other than linking the
+parent and child nodes, such as optimization of the nearest-search.
+
+For example, if you want to use kd-tree for the nearest search,
+ here you can add codes for inserting a node into a kd-tree.
+
+Should always returns a modified `tree', but the default =:around=
+method ensures this behavior.
+
 ** Conditions
 *** Condition: =child-not-found= 				      :class:
 

@@ -141,10 +141,12 @@ if you want to use B-tree for the nearest search,
 Always returns `tree' as a result of :around method of rrt-tree-mixin."
 (defgeneric insert (content tree))
 
-(defmethod insert :around (v (tree rrt-tree-mixin))
+(defmethod insert :around ((v rrt-tree-node) (tree rrt-tree-mixin))
   (call-next-method)
   tree)
-(defmethod insert (v (tree rrt-tree-mixin))
+(defmethod insert ((v rrt-tree-node) (tree rrt-tree-mixin))
+  @ignore v
+  @ignore tree
   ;; do nothing.
   )
 
@@ -155,11 +157,17 @@ to accumulate all leafs into a list.
 A leaf is a node with no children."
 (defgeneric leafs (tree))
 
+(defmethod leafs ((tree rrt-tree-mixin))
+  (remove-if #'children (nodes tree)))
+
 @export
 @doc "TREE -> FIXNUM
 This generic function should provide a method
 to count the number of leafs."
 (defgeneric count-nodes (tree))
+
+(defmethod count-nodes ((tree rrt-tree-mixin))
+  (length (nodes tree)))
 
 @export
 @doc "V, V -> NUMBER
@@ -176,6 +184,7 @@ to measure the distance between two points in C-space
 			   (:start-v t)
 			   (:tree rrt-tree-mixin)
 			   (:tree-class (or symbol class))
+                           (:tree-class-options list)
 			   (:max-nodes fixnum)
 			   (:max-iteration fixnum)
 			   (:run-on-node (function (t t) boolean)))
@@ -218,6 +227,7 @@ the arguments should be of types as listed in the following :
      start-v
      tree
      (tree-class 'rrt-tree-tree)
+     (tree-class-options nil)
      (max-nodes 15)
      (max-iteration 30)
      run-on-node)
@@ -230,8 +240,12 @@ the arguments should be of types as listed in the following :
                        tree should have its root node already."))))
     (with tree = 
 	  (if tree
-	      (reinitialize-instance tree :finish-node nil)
-	      (make-instance tree-class :root start-node)))
+	      (apply #'reinitialize-instance
+                     tree :finish-node nil
+                     tree-class-options)
+	      (apply #'make-instance
+                     tree-class :root start-node
+                     tree-class-options)))
     (generate i
 	      from (count-nodes tree)
 	      below max-nodes)
@@ -262,7 +276,8 @@ the arguments should be of types as listed in the following :
 			   (:start-v t)
 			   (:tree rrt-tree-mixin)
 			   (:tree-class (or symbol class))
-			   (:max-nodes fixnum)
+                           (:tree-class-options list)
+                           (:max-nodes fixnum)
 			   (:max-iteration fixnum)
 			   (:run-on-node (function (t t) boolean)))
 			  (values
@@ -271,29 +286,7 @@ the arguments should be of types as listed in the following :
 			   fixnum))
 		split-branch-rrt-search))
 @export
-@doc "RRT-search function.
-let V as a type variable.
-
-+ V :: a vector class which represents the point in C-space.
-           (configuration-space-distance V V) should return a number.
-+ (node V) :: an rrt-tree-node instance whose `content' slot is V.
-           non-holonomic parameters like velocity and acceralation
-           should be stored within (node V), not in V.
-
-`rrt-search' returns the result tree as its primary value.  The
-secondaly value is the total number of the nodes, and third value is
-the number of iteration done in the search.
-
-the arguments should be of types as listed in the following :
-
-+ start-v : V
-+ random-generator: (no args) -> V
-+ new-v-generator: V, V -> V ; nearest, random -> actual
-+ edge-prohibited-p: V, V -> bool ; nearest, new -> result
-+ finish-p: V -> bool ; new -> result
-+ run-on-node: V, V -> t ; nearest, new ->
-
-"
+@doc "RRT-search function with split edges."
 (defun split-branch-rrt-search
     (random-generator
      new-vs-generator
@@ -303,6 +296,7 @@ the arguments should be of types as listed in the following :
      start-v
      tree
      (tree-class 'rrt-tree-tree)
+     (tree-class-options nil)
      (max-nodes 15)
      (max-iteration 30)
      run-on-node)
@@ -316,8 +310,12 @@ the arguments should be of types as listed in the following :
                        the tree must have its root node."))))
 	(with tree = 
 	      (if tree
-		  (reinitialize-instance tree :finish-node nil)
-		  (make-instance tree-class :root start-node)))
+                  (apply #'reinitialize-instance
+                         tree :finish-node nil
+                         tree-class-options)
+                  (apply #'make-instance
+                         tree-class :root start-node
+                         tree-class-options)))
 	(generate node-count
 		  from (count-nodes tree)
 		  below max-nodes)

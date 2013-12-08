@@ -4,7 +4,6 @@
 
 [[https://raw.github.com/guicho271828/cl-rrt/master/figure.png]]
 
-
 RRT is a fast probabilistic multidimentional path-plannning algorithm
 introduced by S.M.LaValle (1). It now has a widespread use in robotics
 and now able to handle the real time systems such as automatic car
@@ -32,12 +31,16 @@ No. 5, pp. 378–400, 2001.
 ** Recent changes
 
 + =edge-prohibited-p= and =finish-p= is now keyword arguments. (2013
-  March 1)
+  March 1st)
++ Supported R-tree based nearest neighbor search (2013 Dec 8th).
+  + It's computational order is smaller than the other trivial
+    implementations, but in practice it may be slow sometimes
+    (especially for the small problems)
 
 ** Future extension
 
 + improvements in the nearest search.
-  + with R-tree, X-tree, kd-tree
+  + with R-tree or kd-tree
 
 ** Dependencies
 

@@ -14,7 +14,7 @@ seaches from the root in nearest-search."
 (defmethod reinitialize-instance :around ((tree rrt-tree-tree) &rest args)
   @ignore args
   (call-next-method)
-  (with-slots (root nodes finish) tree
+  (with-slots (root finish) tree
 	;; もし根に親がいればつながりを切る
 	(awhen (parent root)
 	  (disconnect it root)))
