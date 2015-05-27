@@ -5,6 +5,8 @@
 
 (defsystem cl-rrt.benchmark
   :author "Masataro Asai"
+  :mailto "guicho2.71828@gmail.com"
+  :description "Benchmarking system of cl-rrt"
   :license "LLGPL"
   :depends-on (:cl-rrt
                :cl-rrt.rtree
