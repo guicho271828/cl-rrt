@@ -10,7 +10,7 @@
 	:annot.doc
 	:annot.slot
 	:alexandria
-        :optima
+        :trivia
 	:iterate)
   (:shadowing-import-from :spatial-trees.nns
                           :nearest-neighbor-search)

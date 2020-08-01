@@ -9,11 +9,6 @@
   Author: Masataro Asai (guicho2.71828@gmail.com)
 |#
 
-(in-package :cl-user)
-(defpackage cl-rrt-asd
-  (:use :cl :asdf))
-(in-package :cl-rrt-asd)
-
 (defsystem cl-rrt
   :version "0.1"
   :author "Masataro Asai"

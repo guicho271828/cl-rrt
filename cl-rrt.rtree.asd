@@ -18,7 +18,7 @@ Author: Masataro Asai (guicho2.71828@gmail.com)
                 :alexandria
                 :cl-syntax-annot
                 :anaphora
-                :optima
+                :trivia
                 :cl-rrt
                 :spatial-trees
                 :spatial-trees.nns)
